@@ -2238,10 +2238,93 @@ function requestFullscreenSafe() {
   document.addEventListener('pointerdown', armLockFullscreen, true);
   document.addEventListener('keydown', armLockFullscreen, true);
 })();
+/* ── Bouton retour matériel / geste système (Android, PWA) ──
+   On simule un clic sur le bouton retour visuellement actif de la page/
+   de l'overlay en cours (le plus haut en z-index), sans dupliquer sa logique.
+   Particularité Android : le premier geste/bouton retour en plein écran est
+   intercepté par le navigateur lui-même pour SORTIR du plein écran (aucun
+   popstate n'est alors émis). On détecte donc cette sortie via l'événement
+   fullscreenchange et on y réagit en rétablissant le plein écran et en
+   déclenchant nous-mêmes le retour de la page en cours, dans le même
+   événement (pour rester dans la fenêtre d'activation utilisateur). */
+(function() {
+  var BACK_SELECTOR = '.back-btn, #sn-back-btn, #modal-cancel, .modal-cancel, #cryptexReplayClose';
+  function visibleBackTargets() {
+    var nodes = document.querySelectorAll(BACK_SELECTOR);
+    var visible = [];
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var style = getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') continue;
+      if (el.offsetParent === null && style.position !== 'fixed') continue;
+      var r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue;
+      visible.push(el);
+    }
+    return visible;
+  }
+  function zIndexOf(el) {
+    var p = el, z = NaN;
+    while (p && isNaN(z)) {
+      var v = parseInt(getComputedStyle(p).zIndex, 10);
+      if (!isNaN(v)) z = v;
+      p = p.parentElement;
+    }
+    return isNaN(z) ? 0 : z;
+  }
+  function topMostBack() {
+    var visible = visibleBackTargets();
+    if (!visible.length) return null;
+    var best = visible[0], bestZ = zIndexOf(best);
+    for (var i = 1; i < visible.length; i++) {
+      var z = zIndexOf(visible[i]);
+      if (z >= bestZ) { bestZ = z; best = visible[i]; }
+    }
+    return best;
+  }
+  function triggerCurrentPageBack() {
+    var btn = topMostBack();
+    if (btn) btn.click();
+  }
+  function armHistoryTrap() {
+    try { history.pushState({ curiosityNav: true }, ''); } catch (e) {}
+  }
+  function isFullscreenNow() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+  }
+  armHistoryTrap();
+
+  // Permet à toggleFullscreen() de signaler une sortie VOLONTAIRE (clic sur
+  // le bouton plein écran), pour ne pas la traiter comme un retour Android.
+  window.curiosityMarkVoluntaryFullscreenExit = function() { voluntaryExit = true; };
+  var voluntaryExit = false;
+
+  window.addEventListener('popstate', function() {
+    triggerCurrentPageBack();
+    armHistoryTrap();
+  });
+
+  var fsWasActive = isFullscreenNow();
+  function onFsChange() {
+    var nowActive = isFullscreenNow();
+    if (fsWasActive && !nowActive && !voluntaryExit) {
+      // Sortie de plein écran non voulue (geste/bouton retour Android) :
+      // on rétablit le plein écran et on applique le retour de la page.
+      requestFullscreenSafe();
+      triggerCurrentPageBack();
+    }
+    voluntaryExit = false;
+    fsWasActive = nowActive;
+  }
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+  document.addEventListener('mozfullscreenchange', onFsChange);
+})();
 function toggleFullscreen() {
   var el = document.documentElement;
   var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
   if (isFs) {
+    if (window.curiosityMarkVoluntaryFullscreenExit) window.curiosityMarkVoluntaryFullscreenExit();
     if (document.exitFullscreen) document.exitFullscreen();
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
