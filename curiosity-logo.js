@@ -7,7 +7,7 @@
 (function () {
   const PARAMS = {
     nb: 800, rayonK: 0.40, dispersion: 0.75, derive: 1.55, aplat: 1,
-    taille: 0.5, scint: 0.35, noyau: 0.8, vitesse: 0.70, intensite: 0,5
+    taille: 0.5, scint: 0.35, noyau: 0.8, vitesse: 0.70, intensite: 0.5
   };
 
   function hex(h) {
