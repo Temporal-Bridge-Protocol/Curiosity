@@ -6,8 +6,10 @@
    Fond transparent. Repos en boucle, s'anime au survol, "parle" au clic. */
 (function () {
   const PARAMS = {
-    nb: 800, rayonK: 0.40, dispersion: 0.75, derive: 1.55, aplat: 1,
-    taille: 0.5, scint: 0.35, noyau: 0.8, vitesse: 0.70, intensite: 0,5
+ claude/curiosity-logo-concepts-5l5t42
+    nb: 800, rayonK: 0.22, dispersion: 0.75, derive: 1.55, aplat: 1,
+    taille: 0.5, scint: 0.35, noyau: 0.6, vitesse: 0.75, intensite: 1.3
+ main
   };
 
   function hex(h) {

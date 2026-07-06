@@ -1302,6 +1302,7 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
   80% { transform: translateX(6px); }
 }
 </style>
+<script src="curiosity-logo.js"></script>
 </head>
 <body>
 
@@ -2913,8 +2914,8 @@ document.getElementById('answerInput').addEventListener('keydown', function(e){
     (function(){
       var ringSrc = 'data:image/png;base64,' + CUR_LOGO_RING_B64;
       var cSrc = 'data:image/png;base64,' + CUR_LOGO_C_B64;
-      document.querySelectorAll('.cur-logo-ring-img').forEach(function(img){ img.src = ringSrc; });
-      document.querySelectorAll('.cur-logo-c-img').forEach(function(img){ img.src = cSrc; });
+      // Logo images now loaded via curiosity-logo.js Web Component
+      // Logo images now loaded via curiosity-logo.js Web Component
     })();
         document.addEventListener('DOMContentLoaded', startBugAnimation);
   } else {
