@@ -1,7 +1,7 @@
 /* <curiosity-logo> — logo animé nébuleuse pour le jeu Curiosity.
    Usage :
      <script src="curiosity-logo.js"></script>
-     <curiosity-logo size="400"></curiosity-logo>
+     <curiosity-logo size="800"></curiosity-logo>
    Attributs optionnels : size (px), accent (#hex), couleur2 (#hex).
    Fond transparent. Repos en boucle, s'anime au survol, "parle" au clic. */
 (function () {
