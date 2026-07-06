@@ -1302,13 +1302,14 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
   80% { transform: translateX(6px); }
 }
 </style>
+<script src="curiosity-logo.js"></script>
 </head>
 <body>
 
 <!-- ══ ACCÈS SÉCURISÉ (MOT DE PASSE) ══ -->
 <div class="page active" id="pageLock">
   <div class="hero" style="position:relative;padding-top:20px;padding-bottom:0">
-    <div class="cur-logo" style="width:min(160px,38vw);height:min(160px,38vw);margin:0 auto 4px"><img class="cur-logo-ring-img cur-logo-ring" alt=""><img class="cur-logo-c-img cur-logo-c" alt=""></div>
+    <curiosity-logo style="width:min(160px,38vw);height:min(160px,38vw);margin:0 auto 4px" size="160"></curiosity-logo>
     <div class="app-name" style="font-size:27px;letter-spacing:0.38em">Curiosity</div>
   </div>
   <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0 14px 20px;flex:1">
@@ -1349,7 +1350,7 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
     </div>
   </div>
   <div class="hero" style="position:relative;padding-bottom:16px">
-    <div class="cur-logo" style="width:60px;height:60px;margin:0 auto 10px"><img class="cur-logo-ring-img cur-logo-ring" alt=""><img class="cur-logo-c-img cur-logo-c" alt=""></div>
+    <curiosity-logo style="width:60px;height:60px;margin:0 auto 10px" size="60"></curiosity-logo>
     <div class="app-name" style="font-size:27px;letter-spacing:0.38em">Curiosity</div>
     <div class="app-version">TEMPORAL BRIDGE PROTOCOL · v2082.1</div>
   </div>
@@ -1397,7 +1398,7 @@ Enfin, recherchez l'objet dans l'espace.
     </div>
   </div>
   <div class="hero" style="position:relative">
-    <div class="cur-logo"><img class="cur-logo-ring-img cur-logo-ring" alt=""><img class="cur-logo-c-img cur-logo-c" alt=""></div>
+    <curiosity-logo style="margin:0 auto 12px" size="76"></curiosity-logo>
     <div class="app-name">Curiosity</div>
     <div class="app-version">TEMPORAL BRIDGE PROTOCOL · v2082.1 · BUILD 20820106</div>
     <div class="app-desc">Activez les paramètres pour vous authentifier</div>
@@ -2913,8 +2914,8 @@ document.getElementById('answerInput').addEventListener('keydown', function(e){
     (function(){
       var ringSrc = 'data:image/png;base64,' + CUR_LOGO_RING_B64;
       var cSrc = 'data:image/png;base64,' + CUR_LOGO_C_B64;
-      document.querySelectorAll('.cur-logo-ring-img').forEach(function(img){ img.src = ringSrc; });
-      document.querySelectorAll('.cur-logo-c-img').forEach(function(img){ img.src = cSrc; });
+      // Logo images now loaded via curiosity-logo.js Web Component
+      // Logo images now loaded via curiosity-logo.js Web Component
     })();
         document.addEventListener('DOMContentLoaded', startBugAnimation);
   } else {
