@@ -28,6 +28,7 @@
       const c = document.createElement('canvas');
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       c.width = size * dpr; c.height = size * dpr;
+      this._baseSize = size;
       c.style.cssText = 'display:block;width:' + size + 'px;height:' + size + 'px;';
       this.appendChild(c);
       this._ctx = c.getContext('2d');
@@ -74,6 +75,10 @@
         default: return (0.09 + 0.05 * Math.sin(t * 0.7)) * k;
       }
     }
+     _getCanvasSize() {
+  const scale = 1 + this._amp * 0.3;
+  return this._baseSize * scale;
+}
     _spinSpeed() {
       return { parle: 0.6, ecoute: 0.25, repos: 0.12 }[this._mode] * PARAMS.vitesse;
     }
@@ -84,7 +89,9 @@
       this._amp += (this._target(t) - this._amp) * 0.08;
       this._rot += this._spinSpeed() * dt;
       const a = this._amp, rot = this._rot;
-      const S = this._size, ctx = this._ctx;
+      const baseS = this._size;
+const S = this._getCanvasSize();
+const ctx = this._ctx;
       const f = S / 480;
       const rayon = S * PARAMS.rayonK;
       const [r1, g1, b1] = hex(this.getAttribute('accent') || '#7C8CFF');
@@ -119,6 +126,9 @@
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.arc(0, 0, cr2, 0, 7); ctx.fill();
       ctx.restore();
+       const dpr = Math.min(2, window.devicePixelRatio || 1);
+c.width = S * dpr; 
+c.height = S * dpr;
     }
   }
 
