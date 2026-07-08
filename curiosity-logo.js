@@ -6,7 +6,7 @@
    Fond transparent. Repos en boucle, s'anime au survol, "parle" au clic. */
 (function () {
   const PARAMS = {
-    nb: 1500, rayonK: 0.90, dispersion: 0.75, derive: 1.55, aplat: 1,
+    nb: 1500, rayonK: 0.50, dispersion: 0.75, derive: 1.55, aplat: 1,
     taille: 1, scint: 0.35, noyau: 0.8, vitesse: 0.75, intensite: 1.3
   };
 
