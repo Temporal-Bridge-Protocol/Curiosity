@@ -25,13 +25,13 @@
       this.style.width = size + 'px';
       this.style.height = size + 'px';
       this.style.cursor = 'pointer';
-      const c = document.createElement('canvas');
+      this._canvas = document.createElement('canvas');
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      c.width = size * dpr; c.height = size * dpr;
+this._canvas.width = size * dpr; this._canvas.height = size * dpr;
       this._baseSize = size;
-      c.style.cssText = 'display:block;width:' + size + 'px;height:' + size + 'px;';
-      this.appendChild(c);
-      this._ctx = c.getContext('2d');
+this._canvas.style.cssText = 'display:block;width:' + size + 'px;height:' + size + 'px;';
+this.appendChild(this._canvas);
+this._ctx = this._canvas.getContext('2d');
       this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       this._mode = 'repos';
