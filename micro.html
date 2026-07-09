@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Calibrage harmonique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(87,211,255,0.10), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(87,211,255,0.05) 0px, rgba(87,211,255,0.05) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(87,211,255,0.05) 0px, rgba(87,211,255,0.05) 1px, transparent 1px, transparent 28px),
+    #08080e;
+  background-attachment: fixed;
+  color: #f3f9fd;
+  font-family: 'Space Grotesk', 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.wrap { max-width: 460px; margin: 0 auto; padding: 26px 18px 50px; }
+
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: #5a8090; text-align: center; margin-bottom: 8px;
+}
+h1 {
+  font-size: clamp(20px, 6vw, 26px); font-weight: 700; letter-spacing: 0.03em;
+  text-align: center; color: #b5f0ff; margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(87,211,255,0.3);
+}
+.subtitle {
+  text-align: center; color: #a8bcdc; font-size: 13px; line-height: 1.5;
+  margin-bottom: 26px;
+}
+
+/* --- écran d'accès micro --- */
+#micGate {
+  background: #0c1420; border: 1px solid #182636; border-radius: 14px;
+  padding: 24px 20px; text-align: center;
+}
+#micGate p { color: #a8bcdc; font-size: 13px; line-height: 1.6; margin-bottom: 18px; }
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; background: #090e1a; border: 1px solid #1a3050; border-radius: 12px;
+  padding: 15px 20px; color: #57d3ff; font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.btn-primary:active { background: #0d1626; border-color: #2a5080; }
+#micError {
+  display: none; margin-top: 14px; color: #d06868; font-size: 12px;
+  background: #1a0e10; border: 1px solid #3a1620; border-radius: 8px; padding: 10px;
+}
+
+/* --- grille de fréquences --- */
+#puzzleArea { display: none; }
+.freq-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;
+}
+.freq-card {
+  background: #0c1420; border: 1px solid #182636; border-radius: 14px;
+  padding: 16px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: background 0.15s, border-color 0.25s, box-shadow 0.25s;
+  text-align: center;
+}
+.freq-card:active { background: #101c2e; }
+.freq-card.listening {
+  border-color: #2a5080; box-shadow: 0 0 18px rgba(87,211,255,0.18);
+  animation: freqPulse 1.6s ease-in-out infinite;
+}
+@keyframes freqPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(87,211,255,0.12); }
+  50% { box-shadow: 0 0 22px rgba(87,211,255,0.32); }
+}
+.freq-card.solved { background: #09160e; border-color: #1a3a22; cursor: default; animation: none; }
+
+.freq-num {
+  width: 78px; height: 78px; border-radius: 50%;
+  border: 1px solid #1a2e40; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; color: #7a9aaa;
+  transition: all 0.3s; text-shadow: 0 0 12px rgba(122,154,170,0.35);
+}
+.freq-num .val { font-size: 17px; font-weight: 700; letter-spacing: 0.01em; }
+.freq-num .unit { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.1em; opacity: 0.7; }
+.freq-card.listening .freq-num { border-color: #2b7da0; color: #57d3ff; text-shadow: 0 0 14px rgba(87,211,255,0.5); }
+.freq-card.solved .freq-num { border-color: #2a8848; color: #3a9060; background: #0a1e10; text-shadow: 0 0 14px rgba(58,176,96,0.55); }
+
+.freq-note { font-family: 'Space Mono', monospace; font-size: 8px; color: #5a7080; letter-spacing: 0.08em; }
+.freq-card.solved .freq-note { color: #2a8848; }
+.freq-status { font-family: 'Space Mono', monospace; font-size: 7px; color: #5a7080; letter-spacing: 0.05em; min-height: 10px; }
+.freq-card.solved .freq-status { color: #2a8848; }
+.freq-check { font-size: 16px; color: #3a9060; display: none; }
+.freq-card.solved .freq-check { display: block; }
+
+/* --- panneau d'écoute active --- */
+#listenPanel {
+  display: none; background: #0c1420; border: 1px solid #2a5080; border-radius: 14px;
+  padding: 18px; margin-bottom: 18px;
+}
+#listenPanel .lp-title {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em;
+  color: #5a8090; text-align: center; margin-bottom: 10px; text-transform: uppercase;
+}
+#listenPanel .lp-target { text-align: center; font-size: 22px; color: #b5f0ff; margin-bottom: 4px; }
+#listenPanel .lp-detected {
+  text-align: center; font-family: 'Space Mono', monospace; font-size: 13px;
+  color: #57d3ff; min-height: 18px; margin-bottom: 14px;
+}
+
+.tuning-bar {
+  position: relative; height: 34px; background: #08101c; border: 1px solid #182636;
+  border-radius: 8px; margin-bottom: 6px; overflow: hidden;
+}
+.tuning-bar .zone-ok {
+  position: absolute; top: 0; bottom: 0; left: 42%; width: 16%;
+  background: rgba(58,176,96,0.18); border-left: 1px solid rgba(58,176,96,0.4);
+  border-right: 1px solid rgba(58,176,96,0.4);
+}
+.tuning-bar .center-line {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(255,255,255,0.15);
+}
+.tuning-bar .marker {
+  position: absolute; top: 2px; bottom: 2px; width: 4px; border-radius: 2px;
+  background: #5a7080; transition: left 0.08s linear, background 0.15s;
+  transform: translateX(-50%);
+}
+.tuning-bar .marker.in-tune { background: #3a9060; box-shadow: 0 0 10px rgba(58,176,96,0.6); }
+.tuning-label { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 7px; color: #4a6070; margin-bottom: 16px; }
+
+.hold-bar-wrap { background: #08101c; border: 1px solid #182636; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 10px; }
+.hold-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #2a5080, #57d3ff); transition: width 0.08s linear; }
+.hold-text { text-align: center; font-family: 'Space Mono', monospace; font-size: 9px; color: #5a8090; margin-bottom: 14px; }
+
+.btn-secondary {
+  width: 100%; background: transparent; border: 1px solid #1a3050; border-radius: 10px;
+  padding: 10px; color: #5a8090; font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+}
+.btn-secondary:active { background: #0d1626; }
+
+/* --- statut global --- */
+#globalStatus {
+  margin-top: 4px; padding: 12px 14px; border-radius: 8px; background: #080e18;
+  border: 1px solid #0e1a28; font-family: 'Space Mono', monospace; font-size: 10px;
+  color: #5a8090; letter-spacing: 0.1em; text-align: center; transition: all 0.5s;
+}
+#globalStatus.partial { border-color: #1a3850; color: #5a9ab0; background: #080e1c; }
+#globalStatus.complete { border-color: #2a8848; color: #3a9060; background: #07110c; }
+
+@media (prefers-reduced-motion: reduce) {
+  .freq-card.listening { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Authentification vocale</div>
+  <h1>CALIBRAGE HARMONIQUE</h1>
+  <div class="subtitle">
+    Le système attend une signature vocale précise sur quatre fréquences.
+    Tiens chaque note avec ta voix pendant la durée requise pour la valider — l'ordre n'a pas d'importance.
+  </div>
+
+  <div id="micGate">
+    <p>Cette énigme utilise le microphone de l'appareil pour détecter la hauteur de ta voix.
+    Aucun son n'est enregistré ni envoyé : l'analyse se fait entièrement en local.</p>
+    <button class="btn-primary" id="btnActivateMic">Activer le microphone</button>
+    <div id="micError"></div>
+  </div>
+
+  <div id="puzzleArea">
+    <div class="freq-grid" id="freqGrid"></div>
+
+    <div id="listenPanel">
+      <div class="lp-title">Écoute en cours</div>
+      <div class="lp-target" id="lpTarget">—</div>
+      <div class="lp-detected" id="lpDetected">En attente de voix…</div>
+      <div class="tuning-bar">
+        <div class="zone-ok"></div>
+        <div class="center-line"></div>
+        <div class="marker" id="tuningMarker" style="left:50%;"></div>
+      </div>
+      <div class="tuning-label"><span>trop grave</span><span>cible</span><span>trop aigu</span></div>
+      <div class="hold-bar-wrap"><div class="hold-bar" id="holdBar"></div></div>
+      <div class="hold-text" id="holdText">Tiens la note…</div>
+      <button class="btn-secondary" id="btnCancelListen">Annuler / choisir une autre fréquence</button>
+    </div>
+
+    <div id="globalStatus">0 / 4 SIGNAUX CALIBRÉS</div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================================
+   CALIBRAGE HARMONIQUE — détection de hauteur vocale via Web Audio API
+   -------------------------------------------------------------------------
+   Personnalisation rapide :
+   - TARGETS               : les 4 fréquences cibles (Hz) + libellés
+   - HOLD_DURATION_MS       : durée à tenir la note pour valider (actuellement 2000ms)
+   - TOLERANCE_CENTS        : tolérance autour de la cible, en cents (35 = ~1/3 de demi-ton)
+   - ALLOW_OCTAVE_EQUIVALENCE : accepte une octave au-dessus/en-dessous (plus jouable
+     si une fréquence sort de la tessiture naturelle du joueur)
+   - SHOW_NOTE_NAMES        : affiche le nom de note (La, Sol...) sous la fréquence.
+     Mettre à false pour forcer l'usage d'un accordeur/instrument plutôt que
+     de l'oreille/solfège.
+   ========================================================================= */
+
+const TARGETS = [
+  { freq: 440.00, note: "La (A4)" },
+  { freq: 392.00, note: "Sol (G4)" },
+  { freq: 261.63, note: "Do (C4)" },
+  { freq: 493.88, note: "Si (B4)" },
+];
+const HOLD_DURATION_MS = 2000;
+const TOLERANCE_CENTS = 35;
+const ALLOW_OCTAVE_EQUIVALENCE = true;
+const SHOW_NOTE_NAMES = true;
+const MIN_RMS = 0.01;
+
+/* ---- Détection de hauteur : algorithme d'autocorrélation (ACF2+), technique
+   standard pour l'estimation de fréquence fondamentale à partir d'un signal
+   temporel brut. ---- */
+function autoCorrelate(buf, sampleRate) {
+  let SIZE = buf.length;
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) { const v = buf[i]; rms += v * v; }
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < MIN_RMS) return -1;
+
+  let r1 = 0, r2 = SIZE - 1;
+  const thres = 0.2;
+  for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+  for (let i = 1; i < SIZE / 2; i++) if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+
+  const trimmed = buf.slice(r1, r2);
+  SIZE = trimmed.length;
+  if (SIZE < 8) return -1;
+
+  const c = new Array(SIZE).fill(0);
+  for (let i = 0; i < SIZE; i++)
+    for (let j = 0; j < SIZE - i; j++)
+      c[i] += trimmed[j] * trimmed[j + i];
+
+  let d = 0;
+  while (d + 1 < SIZE && c[d] > c[d + 1]) d++;
+
+  let maxval = -1, maxpos = -1;
+  for (let i = d; i < SIZE; i++) {
+    if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+  }
+  let T0 = maxpos;
+  if (T0 <= 0) return -1;
+
+  if (T0 > 0 && T0 < SIZE - 1) {
+    const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+    const a = (x1 + x3 - 2 * x2) / 2;
+    const b = (x3 - x1) / 2;
+    if (a) T0 = T0 - b / (2 * a);
+  }
+  return sampleRate / T0;
+}
+
+function centsOff(detected, target) {
+  let diff = 1200 * Math.log2(detected / target);
+  if (ALLOW_OCTAVE_EQUIVALENCE) {
+    // ramène l'écart dans [-600, 600] en testant les octaves voisines
+    while (diff > 600) diff -= 1200;
+    while (diff < -600) diff += 1200;
+  }
+  return diff;
+}
+
+/* ---- État du jeu ---- */
+const state = TARGETS.map(() => ({ solved: false }));
+let activeIndex = -1;
+let holdMs = 0;
+let audioCtx = null, analyser = null, sourceNode = null;
+let timeBuf = null;
+let rafId = null;
+let lastTs = 0;
+
+const freqGrid = document.getElementById("freqGrid");
+const listenPanel = document.getElementById("listenPanel");
+const lpTarget = document.getElementById("lpTarget");
+const lpDetected = document.getElementById("lpDetected");
+const tuningMarker = document.getElementById("tuningMarker");
+const holdBar = document.getElementById("holdBar");
+const holdText = document.getElementById("holdText");
+const globalStatus = document.getElementById("globalStatus");
+
+function fmtFreq(f) { return f.toFixed(2).replace(".", ","); }
+
+function buildGrid() {
+  freqGrid.innerHTML = "";
+  TARGETS.forEach((t, i) => {
+    const card = document.createElement("div");
+    card.className = "freq-card";
+    card.dataset.index = i;
+    card.innerHTML =
+      '<div class="freq-num"><span class="val">' + fmtFreq(t.freq) + '</span><span class="unit">Hz</span></div>' +
+      (SHOW_NOTE_NAMES ? '<div class="freq-note">' + t.note + '</div>' : '') +
+      '<div class="freq-status">En attente</div>' +
+      '<div class="freq-check">&#10003;</div>';
+    card.addEventListener("click", () => onCardClick(i));
+    freqGrid.appendChild(card);
+  });
+}
+
+function refreshCardsUI() {
+  const cards = freqGrid.querySelectorAll(".freq-card");
+  cards.forEach((card, i) => {
+    card.classList.toggle("solved", state[i].solved);
+    card.classList.toggle("listening", i === activeIndex);
+    const statusEl = card.querySelector(".freq-status");
+    if (state[i].solved) statusEl.textContent = "Validé";
+    else if (i === activeIndex) statusEl.textContent = "Écoute…";
+    else statusEl.textContent = "En attente";
+  });
+}
+
+function refreshGlobalStatus() {
+  const solvedCount = state.filter(s => s.solved).length;
+  globalStatus.classList.remove("partial", "complete");
+  if (solvedCount === TARGETS.length) {
+    globalStatus.textContent = TARGETS.length + " / " + TARGETS.length + " — SÉQUENCE CONFIRMÉE";
+    globalStatus.classList.add("complete");
+  } else if (solvedCount > 0) {
+    globalStatus.textContent = solvedCount + " / " + TARGETS.length + " SIGNAUX CALIBRÉS";
+    globalStatus.classList.add("partial");
+  } else {
+    globalStatus.textContent = "0 / " + TARGETS.length + " SIGNAUX CALIBRÉS";
+  }
+}
+
+function onCardClick(i) {
+  if (state[i].solved) return;
+  activeIndex = i;
+  holdMs = 0;
+  listenPanel.style.display = "block";
+  lpTarget.textContent = fmtFreq(TARGETS[i].freq) + " Hz" + (SHOW_NOTE_NAMES ? "  ·  " + TARGETS[i].note : "");
+  lpDetected.textContent = "En attente de voix…";
+  holdBar.style.width = "0%";
+  holdText.textContent = "Tiens la note…";
+  refreshCardsUI();
+}
+
+document.getElementById("btnCancelListen").addEventListener("click", () => {
+  activeIndex = -1;
+  holdMs = 0;
+  listenPanel.style.display = "none";
+  refreshCardsUI();
+});
+
+function updateLoop(ts) {
+  rafId = requestAnimationFrame(updateLoop);
+  if (!lastTs) lastTs = ts;
+  const dt = ts - lastTs;
+  lastTs = ts;
+
+  if (activeIndex === -1 || !analyser) return;
+
+  analyser.getFloatTimeDomainData(timeBuf);
+  const detected = autoCorrelate(timeBuf, audioCtx.sampleRate);
+  const target = TARGETS[activeIndex].freq;
+
+  if (detected === -1) {
+    lpDetected.textContent = "En attente de voix…";
+    holdMs = 0;
+    tuningMarker.style.left = "50%";
+    tuningMarker.classList.remove("in-tune");
+  } else {
+    lpDetected.textContent = detected.toFixed(1) + " Hz détecté";
+    const cents = centsOff(detected, target);
+    const clamped = Math.max(-100, Math.min(100, cents));
+    const pct = 50 + (clamped / 100) * 42; // 42% d'amplitude de part et d'autre du centre
+    tuningMarker.style.left = pct + "%";
+
+    if (Math.abs(cents) <= TOLERANCE_CENTS) {
+      tuningMarker.classList.add("in-tune");
+      holdMs += dt;
+    } else {
+      tuningMarker.classList.remove("in-tune");
+      holdMs = 0;
+    }
+  }
+
+  const holdPct = Math.min(100, (holdMs / HOLD_DURATION_MS) * 100);
+  holdBar.style.width = holdPct + "%";
+  holdText.textContent = holdMs > 0
+    ? "Maintiens… " + (holdMs / 1000).toFixed(1) + "s / " + (HOLD_DURATION_MS / 1000).toFixed(1) + "s"
+    : "Tiens la note…";
+
+  if (holdMs >= HOLD_DURATION_MS) {
+    state[activeIndex].solved = true;
+    activeIndex = -1;
+    holdMs = 0;
+    listenPanel.style.display = "none";
+    refreshCardsUI();
+    refreshGlobalStatus();
+  }
+}
+
+async function activateMic() {
+  const micError = document.getElementById("micError");
+  micError.style.display = "none";
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: {
+      echoCancellation: false, noiseSuppression: false, autoGainControl: false
+    }});
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    sourceNode = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    timeBuf = new Float32Array(analyser.fftSize);
+    sourceNode.connect(analyser);
+
+    document.getElementById("micGate").style.display = "none";
+    document.getElementById("puzzleArea").style.display = "block";
+    buildGrid();
+    refreshCardsUI();
+    refreshGlobalStatus();
+    rafId = requestAnimationFrame(updateLoop);
+  } catch (err) {
+    micError.style.display = "block";
+    micError.textContent = "Accès micro refusé ou indisponible (" + err.name + "). Autorise le micro dans les paramètres du navigateur puis réessaie.";
+  }
+}
+
+document.getElementById("btnActivateMic").addEventListener("click", activateMic);
+
+// Utilitaire exposé pour la console, si besoin de vérifier le calcul de cents
+window.NX_CAL = { autoCorrelate, centsOff };
+</script>
+</body>
+</html>
