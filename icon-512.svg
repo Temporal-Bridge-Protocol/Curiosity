@@ -1,6 +1,51 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Fond -->
   <rect width="512" height="512" fill="#07090f"/>
-  <circle cx="256" cy="256" r="188" fill="none" stroke="#1a3a50" stroke-width="2"/>
-  <circle cx="256" cy="256" r="150" fill="none" stroke="#142e40" stroke-width="1.5"/>
-  <text x="256" y="308" font-family="Georgia, serif" font-size="190" font-style="italic" font-weight="bold" fill="#4a8aaa" text-anchor="middle">C</text>
+
+  <!-- Gradients et filtres -->
+  <defs>
+    <radialGradient id="nebula-512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#7C8CFF;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#4FD8C8;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#2a7898;stop-opacity:0"/>
+    </radialGradient>
+    <filter id="glow-512">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Nébuleuse principale -->
+  <circle cx="256" cy="256" r="160" fill="url(#nebula-512)" filter="url(#glow-512)"/>
+
+  <!-- Particules de la nébuleuse (plus nombreuses en haute résolution) -->
+  <circle cx="256" cy="120" r="3" fill="#7C8CFF" opacity="0.9"/>
+  <circle cx="346" cy="175" r="2.5" fill="#4FD8C8" opacity="0.7"/>
+  <circle cx="375" cy="256" r="3" fill="#7C8CFF" opacity="0.8"/>
+  <circle cx="333" cy="345" r="2.5" fill="#4FD8C8" opacity="0.7"/>
+  <circle cx="256" cy="375" r="3" fill="#7C8CFF" opacity="0.9"/>
+  <circle cx="175" cy="333" r="2.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="137" cy="256" r="3" fill="#7C8CFF" opacity="0.8"/>
+  <circle cx="175" cy="175" r="2.5" fill="#4FD8C8" opacity="0.7"/>
+
+  <!-- Particules secondaires -->
+  <circle cx="290" cy="145" r="2" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="365" cy="210" r="1.5" fill="#4FD8C8" opacity="0.5"/>
+  <circle cx="355" cy="310" r="2" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="280" cy="365" r="1.5" fill="#4FD8C8" opacity="0.5"/>
+  <circle cx="220" cy="365" r="2" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="155" cy="310" r="1.5" fill="#4FD8C8" opacity="0.5"/>
+  <circle cx="157" cy="210" r="2" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="220" cy="145" r="1.5" fill="#4FD8C8" opacity="0.5"/>
+
+  <!-- Noyau central -->
+  <circle cx="256" cy="256" r="50" fill="#7C8CFF" opacity="0.6" filter="url(#glow-512)"/>
+  <circle cx="256" cy="256" r="25" fill="#b5f0ff" opacity="0.5"/>
+
+  <!-- Anneaux extérieurs -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="#2a7898" stroke-width="1" opacity="0.4"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#1a4860" stroke-width="0.5" opacity="0.3"/>
 </svg>
