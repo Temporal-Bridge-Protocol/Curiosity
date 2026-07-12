@@ -1307,6 +1307,71 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
   60% { transform: translateX(-6px); }
   80% { transform: translateX(6px); }
 }
+
+/* Letter Pages Styling */
+.page-letter {
+  display: flex;
+  flex-direction: column;
+  background: #07090f;
+  overflow: hidden;
+}
+
+.page-letter-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.letter-huge {
+  font-family: 'Aptos', 'Arial', sans-serif;
+  font-size: clamp(150px, 80vw, 700px);
+  font-weight: bold;
+  color: #7C8CFF;
+  text-shadow:
+    0 0 20px rgba(124, 140, 255, 0.6),
+    0 0 40px rgba(124, 140, 255, 0.3),
+    0 0 60px rgba(124, 140, 255, 0.15),
+    0 0 80px rgba(124, 140, 255, 0.1);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  animation: pulse-letter 2s ease-in-out infinite;
+}
+
+@keyframes pulse-letter {
+  0%, 100% {
+    text-shadow:
+      0 0 20px rgba(124, 140, 255, 0.6),
+      0 0 40px rgba(124, 140, 255, 0.3),
+      0 0 60px rgba(124, 140, 255, 0.15),
+      0 0 80px rgba(124, 140, 255, 0.1);
+    opacity: 1;
+  }
+  50% {
+    text-shadow:
+      0 0 30px rgba(124, 140, 255, 0.8),
+      0 0 60px rgba(124, 140, 255, 0.5),
+      0 0 90px rgba(124, 140, 255, 0.25),
+      0 0 120px rgba(124, 140, 255, 0.15);
+    opacity: 0.95;
+  }
+}
+
+/* Hide scrollbar on letter pages */
+.page-letter {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.page-letter::-webkit-scrollbar {
+  display: none;
+}
+
 </style>
 <script src="curiosity-logo.js"></script>
 </head>
@@ -2544,20 +2609,21 @@ function openEnigma(n) {
   curIdx = n - 1;
   var e = ENIGMAS[curIdx];
 
+  // Si l'énigme est déjà résolue, afficher la page lettre correspondante
+  if (STATE.solved[curIdx]) {
+    var letterPages = ['pageLetterI', 'pageLetterII', 'pageLetterIII'];
+    showPage(letterPages[curIdx]);
+    return;
+  }
+
   // Énigme 3 : page dédiée navigation stellaire
   if (n === 3) {
     document.getElementById('e3Text').textContent = e.text;
     var b3 = document.getElementById('solvedBanner3');
     var btn3 = document.getElementById('openStarNavBtn');
-    if (STATE.solved[2]) {
-      b3.style.display = 'block';
-      btn3.style.opacity = '1';
-      btn3.style.pointerEvents = 'auto';
-    } else {
-      b3.style.display = 'none';
-      btn3.style.opacity = '1';
-      btn3.style.pointerEvents = 'auto';
-    }
+    b3.style.display = 'none';
+    btn3.style.opacity = '1';
+    btn3.style.pointerEvents = 'auto';
     updateStellarStatus();
     spawnInstrStardust(document.getElementById('enigma3Stardust'));
     showPage('pageEnigma3');
@@ -2666,7 +2732,7 @@ window.addEventListener('message', function(ev) {
     saveState();
     refreshHome();
     launchSuccessAnim(0, function() {
-      goHome();
+      showPage('pageLetterI');
     });
   }
 });
@@ -2727,7 +2793,9 @@ window.CuriosityBridge = {
     closeStarNav();
     setTimeout(function(){
       showPage('pageEnigma3');
-      launchSuccessAnim(2, function() {});
+      launchSuccessAnim(2, function() {
+        showPage('pageLetterIII');
+      });
     }, 600);
   }
 };
@@ -2828,9 +2896,11 @@ function checkAnswer() {
     inp.classList.add('ok');
     STATE.solved[curIdx] = true;
     saveState();
+    refreshHome();
     // Lance l'animation de succès immédiatement
+    var letterPages = ['pageLetterI', 'pageLetterII', 'pageLetterIII'];
     launchSuccessAnim(curIdx, function() {
-      goHome();
+      showPage(letterPages[curIdx]);
     });
   } else {
     inp.classList.add('err');
@@ -4560,6 +4630,49 @@ window.closeRadar = function() {
 };
 
 </script>
+
+<!-- ══ PAGES LETTRES (ÉNIGMES I, II, III) ══ -->
+<div class="page page-letter" id="pageLetterI">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()">&#8592;</div>
+    <div style="flex:1"></div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="page-letter-content">
+    <div class="letter-huge">O</div>
+  </div>
+</div>
+
+<div class="page page-letter" id="pageLetterII">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()">&#8592;</div>
+    <div style="flex:1"></div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="page-letter-content">
+    <div class="letter-huge">U</div>
+  </div>
+</div>
+
+<div class="page page-letter" id="pageLetterIII">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()">&#8592;</div>
+    <div style="flex:1"></div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="page-letter-content">
+    <div class="letter-huge">C</div>
+  </div>
+</div>
 
 <!-- ══ PARAMÈTRES ══ -->
 <div class="page" id="pageSettings">
