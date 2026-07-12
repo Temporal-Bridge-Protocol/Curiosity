@@ -173,30 +173,86 @@
   }
   #failToast.show{opacity:1;}
 
-  /* ---------- Overlay succès ---------- */
+  /* ---------- Overlay succès (identique aux énigmes I & II de Curiosity) ---------- */
   #success{
-    position:fixed;inset:0;z-index:60;display:none;
+    position:fixed;inset:0;z-index:60;display:none;overflow:hidden;
     align-items:center;justify-content:center;flex-direction:column;
-    background:rgba(4,6,10,0.92);text-align:center;padding:24px;
+    background:radial-gradient(120% 120% at 50% 45%, #050a14 0%, #03050a 70%);
+    text-align:center;padding:24px;
   }
   #success.show{display:flex;}
-  #okRing{
-    width:110px;height:110px;border:2px solid var(--cyan);border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 34px rgba(87,211,255,0.55),inset 0 0 22px rgba(87,211,255,0.25);
-    animation:pulse 2.2s ease-in-out infinite;
-    margin-bottom:26px;
+  .so-grid{
+    position:absolute;inset:0;
+    background-image:linear-gradient(rgba(87,211,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(87,211,255,0.06) 1px,transparent 1px);
+    background-size:30px 30px;
+    animation:so-grid-anim 4s ease forwards;
+    -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 78%);
+    mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 78%);
   }
-  #okRing svg{width:54px;height:54px;}
-  @keyframes pulse{
-    0%,100%{box-shadow:0 0 24px rgba(87,211,255,0.4),inset 0 0 16px rgba(87,211,255,0.2);}
-    50%{box-shadow:0 0 46px rgba(87,211,255,0.8),inset 0 0 30px rgba(87,211,255,0.35);}
+  @keyframes so-grid-anim{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+  /* balayage vertical d'activation */
+  .so-scan{
+    position:absolute;left:0;right:0;top:0;height:130px;
+    background:linear-gradient(to bottom,rgba(87,211,255,0) 0%,rgba(87,211,255,0.14) 60%,rgba(208,244,255,0.5) 100%);
+    border-bottom:1px solid rgba(140,226,255,0.7);
+    opacity:0;animation:so-scan-move 2.1s .15s ease-out forwards;
   }
-  #success h1{color:#eaf8ff;font-size:20px;letter-spacing:6px;margin-bottom:10px;}
-  #success p{
-    font-family:'Space Mono','Courier New',monospace;
-    color:var(--cyan);font-size:12px;letter-spacing:2px;line-height:1.7;
+  @keyframes so-scan-move{0%{transform:translateY(-140px);opacity:0}12%{opacity:.9}88%{opacity:.9}100%{transform:translateY(105vh);opacity:0}}
+  /* crochets d'angle HUD */
+  .so-corner{position:absolute;width:30px;height:30px;opacity:0;border:2px solid rgba(87,211,255,0.7);animation:so-corner-in .5s .25s ease forwards;}
+  .so-corner.tl{top:20px;left:20px;border-right:none;border-bottom:none;}
+  .so-corner.tr{top:20px;right:20px;border-left:none;border-bottom:none;}
+  .so-corner.bl{bottom:20px;left:20px;border-right:none;border-top:none;}
+  .so-corner.br{bottom:20px;right:20px;border-left:none;border-top:none;}
+  @keyframes so-corner-in{from{opacity:0;transform:scale(1.4)}to{opacity:.85;transform:scale(1)}}
+  .so-ring{
+    position:absolute;border-radius:50%;left:50%;top:45%;
+    transform:translate(-50%,-50%) scale(0.4);
+    border:1px solid rgba(87,211,255,0.45);
+    box-shadow:0 0 18px rgba(87,211,255,0.25),inset 0 0 18px rgba(87,211,255,0.12);
+    animation:so-expand 4s ease forwards;
   }
+  .so-ring-1{width:96px;height:96px;animation-delay:.1s;}
+  .so-ring-2{width:190px;height:190px;animation-delay:.28s;border-color:rgba(87,211,255,0.3);}
+  .so-ring-3{width:300px;height:300px;animation-delay:.46s;border-color:rgba(120,180,255,0.2);}
+  .so-ring-4{width:420px;height:420px;animation-delay:.64s;border-color:rgba(200,168,75,0.14);}
+  @keyframes so-expand{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(0.4);}
+    20%{opacity:1;}
+    70%{opacity:.35;}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.5);}
+  }
+  /* réticule rotatif */
+  .so-reticle-wrap{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);z-index:4;}
+  .so-reticle{width:340px;height:340px;opacity:0;filter:drop-shadow(0 0 6px rgba(87,211,255,0.5));animation:so-fade-in .8s .2s ease forwards,so-spin 22s linear infinite;}
+  @keyframes so-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @keyframes so-fade-in{from{opacity:0}to{opacity:.9}}
+  .so-center{position:relative;z-index:10;text-align:center;padding:0 30px;margin-top:-5vh;}
+  .so-core{position:relative;width:116px;height:116px;margin:0 auto 22px;}
+  .so-hex{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(87,211,255,0.6));opacity:0;transform:scale(0.5) rotate(-20deg);animation:so-hex-in .6s .1s cubic-bezier(.2,.9,.3,1.2) forwards,so-hex-pulse 2.2s .7s ease-in-out infinite;}
+  @keyframes so-hex-in{from{opacity:0;transform:scale(0.5) rotate(-20deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+  @keyframes so-hex-pulse{0%,100%{filter:drop-shadow(0 0 8px rgba(87,211,255,0.4))}50%{filter:drop-shadow(0 0 18px rgba(87,211,255,0.85))}}
+  .so-check{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:46px;color:#d0f4ff;text-shadow:0 0 14px rgba(87,211,255,0.9);opacity:0;animation:so-pop .5s .35s ease forwards;}
+  @keyframes so-pop{0%{opacity:0;transform:scale(0.4)}65%{transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+  .so-label{font-family:'Space Grotesk','Segoe UI',Arial,sans-serif;font-size:9px;color:#57d3ff;letter-spacing:.34em;text-transform:uppercase;opacity:0;animation:so-up .5s .4s ease forwards;margin-bottom:6px;text-shadow:0 0 10px rgba(87,211,255,0.4);}
+  .so-param{font-family:'Space Grotesk','Segoe UI',Arial,sans-serif;font-size:14px;font-style:italic;color:#9fd8f0;opacity:0;animation:so-up .5s .6s ease forwards;margin-bottom:20px;}
+  @keyframes so-up{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+  .so-progress-wrap{width:200px;height:3px;margin:0 auto;background:rgba(20,40,60,0.7);border-radius:2px;overflow:hidden;box-shadow:0 0 8px rgba(87,211,255,0.2);}
+  .so-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#2a7fb0,#57d3ff,#d0f4ff);box-shadow:0 0 12px rgba(87,211,255,0.8);animation:so-prog 3s .5s cubic-bezier(.3,.7,.2,1) forwards;}
+  @keyframes so-prog{from{width:0%}to{width:100%}}
+  /* étincelles radiales */
+  .so-sparks{position:absolute;left:50%;top:45%;width:0;height:0;z-index:6;}
+  .so-spark{position:absolute;left:0;top:0;width:2px;height:12px;margin:-6px 0 0 -1px;border-radius:2px;background:linear-gradient(#d0f4ff,rgba(87,211,255,0));opacity:0;transform:rotate(var(--a)) translateY(-8px);animation:so-spark-fly 1s .35s ease-out forwards;}
+  @keyframes so-spark-fly{0%{opacity:0;transform:rotate(var(--a)) translateY(-8px);}25%{opacity:1;}100%{opacity:0;transform:rotate(var(--a)) translateY(-150px);}}
+  .so-datastream{position:absolute;bottom:60px;left:0;right:0;display:flex;flex-direction:column;gap:3px;align-items:center;opacity:0;animation:so-dfade 4s .3s ease forwards;}
+  @keyframes so-dfade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+  .so-dataline{font-family:'Space Grotesk','Segoe UI',Arial,sans-serif;font-size:7px;color:#4a9cc4;letter-spacing:.12em;opacity:0;animation:so-up .4s ease forwards;}
+  .so-datastream .so-dataline:nth-child(1){animation-delay:.2s}
+  .so-datastream .so-dataline:nth-child(2){animation-delay:.35s}
+  .so-datastream .so-dataline:nth-child(3){animation-delay:.5s}
+  .so-datastream .so-dataline:nth-child(4){animation-delay:.65s}
+  .so-datastream .so-dataline:nth-child(5){animation-delay:.8s}
+  .so-topline{position:absolute;top:30px;left:0;right:0;font-family:'Space Grotesk','Segoe UI',Arial,sans-serif;font-size:7px;color:#3a7fa8;letter-spacing:.15em;text-align:center;opacity:0;animation:so-dfade 4s .2s ease forwards;}
 </style>
 </head>
 <body>
@@ -265,13 +321,51 @@
 <div id="failToast">ÉCHEC DE SYNCHRONISATION</div>
 
 <div id="success">
-  <div id="okRing">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#57d3ff" stroke-width="2.2">
-      <path d="M4 12.5l5.5 5.5L20 6.5"/>
+  <div class="so-grid"></div>
+  <div class="so-scan"></div>
+  <div class="so-corner tl"></div><div class="so-corner tr"></div>
+  <div class="so-corner bl"></div><div class="so-corner br"></div>
+  <div class="so-ring so-ring-1"></div>
+  <div class="so-ring so-ring-2"></div>
+  <div class="so-ring so-ring-3"></div>
+  <div class="so-ring so-ring-4"></div>
+  <div class="so-reticle-wrap">
+    <svg class="so-reticle" viewBox="0 0 200 200" fill="none" stroke="#57d3ff" stroke-linecap="round">
+      <circle cx="100" cy="100" r="94" stroke-width="0.8" stroke-dasharray="2 7" opacity="0.55"/>
+      <circle cx="100" cy="100" r="80" stroke-width="0.7" stroke-dasharray="16 12" opacity="0.4"/>
+      <circle cx="100" cy="100" r="62" stroke-width="0.6" opacity="0.25"/>
+      <path d="M100 4 v16 M100 180 v16 M4 100 h16 M180 100 h16" stroke-width="1.2"/>
+      <path d="M100 26 l6 11 h-12 z" fill="#57d3ff" stroke="none"/>
     </svg>
   </div>
-  <h1>LIAISON ÉTABLIE</h1>
-  <p>QUATRE RÉCEPTEURS SYNCHRONISÉS<br>RÉSEAU NEXBRIDGE OPÉRATIONNEL<br><br>FRAGMENT DÉVERROUILLÉ · NX-Δ//2082</p>
+  <div class="so-topline">NEXBRIDGE · SYNCHRONISATION EN COURS · QNT-512</div>
+  <div class="so-center">
+    <div class="so-core">
+      <svg class="so-hex" viewBox="0 0 100 100" fill="none" stroke="#57d3ff">
+        <polygon points="50,4 92,27 92,73 50,96 8,73 8,27" stroke-width="2"/>
+        <polygon points="50,16 81,33 81,67 50,84 19,67 19,33" stroke-width="0.8" opacity="0.4"/>
+      </svg>
+      <span class="so-check">&#10003;</span>
+    </div>
+    <div class="so-label">Paramètre activé</div>
+    <div class="so-param">Signature des récepteurs confirmée.</div>
+    <div class="so-progress-wrap">
+      <div class="so-progress-bar"></div>
+    </div>
+  </div>
+  <div class="so-sparks">
+    <i class="so-spark" style="--a:0deg"></i><i class="so-spark" style="--a:45deg"></i>
+    <i class="so-spark" style="--a:90deg"></i><i class="so-spark" style="--a:135deg"></i>
+    <i class="so-spark" style="--a:180deg"></i><i class="so-spark" style="--a:225deg"></i>
+    <i class="so-spark" style="--a:270deg"></i><i class="so-spark" style="--a:315deg"></i>
+  </div>
+  <div class="so-datastream">
+    <div class="so-dataline">SYNC · VECTEUR-3 · OK</div>
+    <div class="so-dataline">HASH: 7F3A9C2E1B04</div>
+    <div class="so-dataline">TIMESTAMP: 2082.01.06-2314</div>
+    <div class="so-dataline">INTÉGRITÉ: 100% · QNT-512</div>
+    <div class="so-dataline">NEXBRIDGE · TRANSMISSION CONFIRMÉE</div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1814,13 +1908,18 @@ document.getElementById("btnValidate").onclick=function(){
   }
   if(ok && complete){
     try{localStorage.setItem("nx_recepteurs_done","1");}catch(err){}
-    /* intégré dans Curiosity : on délègue l'animation de succès au parent
-       (paramètre III activé). En autonome, on montre l'overlay local. */
-    if(window.parent && window.parent!==window){
-      window.parent.postMessage({type:"curiosity-solar-solved"},"*");
-    }else{
-      document.getElementById("success").className="show";
-    }
+    /* Animation de succès affichée pendant 4 s, puis retour automatique
+       vers la page principale de Curiosity (fondu géré côté Curiosity). */
+    document.getElementById("success").className="show";
+    setTimeout(function(){
+      if(window.parent && window.parent!==window){
+        /* intégré : le parent valide l'énigme III et revient à l'accueil */
+        window.parent.postMessage({type:"curiosity-solar-solved"},"*");
+      }else{
+        /* autonome : rejoindre la page principale de Curiosity */
+        window.location.href="index.html";
+      }
+    },4000);
   }else{
     toast.className="show";
     if(toastTimer)clearTimeout(toastTimer);
