@@ -1821,7 +1821,8 @@ Enfin, recherchez l'objet dans l'espace.
     <button class="hud-btn" id="btn-message" style="display:none;border-color:rgba(120,210,160,0.5);color:#8ae0b8">✉ MESSAGE</button>
     <button class="hud-btn" id="constellationLinksBtnSn" onclick="toggleConstellationLinks()" title="Activer/désactiver les liaisons entre étoiles" style="font-size:13px;padding:4px 8px">✦⟢</button>
     <button class="hud-btn" id="btn-admin-toggle">◈ ADMIN</button>
-    <button class="hud-btn" id="btn-fs" title="Plein écran" style="font-size:16px;padding:4px 8px">⛶</button>
+    <button class="hud-btn" onclick="toggleFullscreen()" title="Plein écran" style="font-size:16px;padding:4px 8px">⛶</button>
+    <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 </div>
 <div id="coords" style="display:none;position:fixed;top:42px;right:14px;font-size:9px;letter-spacing:1px;color:rgba(100,150,220,0.5);z-index:20;pointer-events:none;text-align:right"></div>
@@ -1939,6 +1940,10 @@ Enfin, recherchez l'objet dans l'espace.
     <div>
       <div class="topbar-title">Photo d'identité</div>
       <div class="topbar-sub">Curiosity · Authentification</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
   </div>
   <div class="content" style="display:flex;align-items:center;justify-content:center;flex:1;padding:18px">
