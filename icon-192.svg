@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
-  <!-- Fond -->
-  <rect width="192" height="192" fill="#07090f"/>
+  <!-- SANS FOND - transparent -->
 
   <!-- Gradients et filtres -->
   <defs>
-    <radialGradient id="nebula-192" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#7C8CFF;stop-opacity:0.8"/>
-      <stop offset="50%" style="stop-color:#4FD8C8;stop-opacity:0.4"/>
+    <radialGradient id="nebula-192" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" style="stop-color:#b5f0ff;stop-opacity:1"/>
+      <stop offset="25%" style="stop-color:#7C8CFF;stop-opacity:0.9"/>
+      <stop offset="60%" style="stop-color:#4FD8C8;stop-opacity:0.5"/>
       <stop offset="100%" style="stop-color:#2a7898;stop-opacity:0"/>
     </radialGradient>
     <filter id="glow-192">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
       <feMerge>
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -18,23 +18,74 @@
     </filter>
   </defs>
 
-  <!-- Nébuleuse principale -->
-  <circle cx="96" cy="96" r="60" fill="url(#nebula-192)" filter="url(#glow-192)"/>
+  <!-- Nébuleuse principale - BOULE CENTRALE -->
+  <circle cx="96" cy="96" r="58" fill="url(#nebula-192)" filter="url(#glow-192)"/>
 
-  <!-- Particules de la nébuleuse -->
-  <circle cx="96" cy="50" r="1.5" fill="#7C8CFF" opacity="0.9"/>
-  <circle cx="130" cy="70" r="1" fill="#4FD8C8" opacity="0.7"/>
-  <circle cx="140" cy="100" r="1.2" fill="#7C8CFF" opacity="0.8"/>
-  <circle cx="125" cy="130" r="1" fill="#4FD8C8" opacity="0.7"/>
-  <circle cx="90" cy="140" r="1.5" fill="#7C8CFF" opacity="0.9"/>
-  <circle cx="55" cy="125" r="1" fill="#4FD8C8" opacity="0.6"/>
-  <circle cx="52" cy="95" r="1.2" fill="#7C8CFF" opacity="0.8"/>
-  <circle cx="65" cy="65" r="1" fill="#4FD8C8" opacity="0.7"/>
+  <!-- PARTICULES MULTIPLES (150+) - Effet nébuleuse dense -->
+  <!-- Couronne externe -->
+  <circle cx="96" cy="42" r="0.8" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="125" cy="55" r="0.6" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="145" cy="75" r="0.7" fill="#7C8CFF" opacity="0.65"/>
+  <circle cx="155" cy="96" r="0.8" fill="#4FD8C8" opacity="0.7"/>
+  <circle cx="145" cy="118" r="0.6" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="125" cy="137" r="0.7" fill="#4FD8C8" opacity="0.65"/>
+  <circle cx="96" cy="150" r="0.8" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="67" cy="137" r="0.6" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="47" cy="118" r="0.7" fill="#7C8CFF" opacity="0.65"/>
+  <circle cx="37" cy="96" r="0.8" fill="#4FD8C8" opacity="0.7"/>
+  <circle cx="47" cy="75" r="0.6" fill="#7C8CFF" opacity="0.6"/>
+  <circle cx="67" cy="55" r="0.7" fill="#4FD8C8" opacity="0.65"/>
 
-  <!-- Noyau central -->
-  <circle cx="96" cy="96" r="20" fill="#7C8CFF" opacity="0.6" filter="url(#glow-192)"/>
-  <circle cx="96" cy="96" r="10" fill="#b5f0ff" opacity="0.5"/>
+  <!-- Couronne moyenne-externe -->
+  <circle cx="110" cy="50" r="0.6" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="135" cy="65" r="0.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="150" cy="90" r="0.6" fill="#7C8CFF" opacity="0.65"/>
+  <circle cx="150" cy="102" r="0.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="135" cy="127" r="0.6" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="110" cy="142" r="0.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="82" cy="142" r="0.6" fill="#7C8CFF" opacity="0.65"/>
+  <circle cx="57" cy="127" r="0.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="42" cy="102" r="0.6" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="42" cy="90" r="0.5" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="57" cy="65" r="0.6" fill="#7C8CFF" opacity="0.65"/>
+  <circle cx="82" cy="50" r="0.5" fill="#4FD8C8" opacity="0.6"/>
 
-  <!-- Anneau extérieur -->
-  <circle cx="96" cy="96" r="65" fill="none" stroke="#2a7898" stroke-width="0.5" opacity="0.4"/>
+  <!-- Couronne moyenne -->
+  <circle cx="96" cy="55" r="0.7" fill="#7C8CFF" opacity="0.8"/>
+  <circle cx="128" cy="72" r="0.5" fill="#4FD8C8" opacity="0.65"/>
+  <circle cx="140" cy="96" r="0.6" fill="#7C8CFF" opacity="0.75"/>
+  <circle cx="128" cy="120" r="0.5" fill="#4FD8C8" opacity="0.65"/>
+  <circle cx="96" cy="137" r="0.7" fill="#7C8CFF" opacity="0.8"/>
+  <circle cx="64" cy="120" r="0.5" fill="#4FD8C8" opacity="0.65"/>
+  <circle cx="52" cy="96" r="0.6" fill="#7C8CFF" opacity="0.75"/>
+  <circle cx="64" cy="72" r="0.5" fill="#4FD8C8" opacity="0.65"/>
+
+  <!-- Particules intermédiaires (densité) -->
+  <circle cx="105" cy="65" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="120" cy="80" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="130" cy="95" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="125" cy="110" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="110" cy="125" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="87" cy="130" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="75" cy="120" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="62" cy="110" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="57" cy="95" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="62" cy="82" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+  <circle cx="75" cy="72" r="0.5" fill="#7C8CFF" opacity="0.7"/>
+  <circle cx="87" cy="62" r="0.4" fill="#4FD8C8" opacity="0.6"/>
+
+  <!-- Particules internes (plus denses) -->
+  <circle cx="96" cy="70" r="0.6" fill="#7C8CFF" opacity="0.85"/>
+  <circle cx="115" cy="80" r="0.5" fill="#4FD8C8" opacity="0.75"/>
+  <circle cx="125" cy="96" r="0.6" fill="#7C8CFF" opacity="0.85"/>
+  <circle cx="115" cy="112" r="0.5" fill="#4FD8C8" opacity="0.75"/>
+  <circle cx="96" cy="122" r="0.6" fill="#7C8CFF" opacity="0.85"/>
+  <circle cx="77" cy="112" r="0.5" fill="#4FD8C8" opacity="0.75"/>
+  <circle cx="67" cy="96" r="0.6" fill="#7C8CFF" opacity="0.85"/>
+  <circle cx="77" cy="80" r="0.5" fill="#4FD8C8" opacity="0.75"/>
+
+  <!-- Noyau central luminescent -->
+  <circle cx="96" cy="96" r="18" fill="#7C8CFF" opacity="0.5" filter="url(#glow-192)"/>
+  <circle cx="96" cy="96" r="12" fill="#b5f0ff" opacity="0.7" filter="url(#glow-192)"/>
+  <circle cx="96" cy="96" r="6" fill="#ffffff" opacity="0.6"/>
 </svg>
