@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NexOS — Récepteurs</title>
+<style>
+  :root{
+    --cyan:#57d3ff;
+    --bg:#08080e;
+    --panel:#0e1620;
+    --line:#234a5c;
+    --txt:#a9d8ee;
+    --dim:#5f8ca3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+    font-family:'Space Grotesk','Segoe UI',Arial,sans-serif;color:var(--txt);
+    touch-action:none;overscroll-behavior:none;}
+
+  /* ---------- Bandeau ---------- */
+  #topbar{
+    position:fixed;top:0;left:0;right:0;height:52px;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 12px;
+    background:rgba(8,8,14,0.88);
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(6px);
+  }
+  #left{display:flex;align-items:center;gap:10px;}
+  #brand{display:flex;flex-direction:column;line-height:1.1;}
+  #brand .t1{color:#eaf8ff;font-size:15px;letter-spacing:4px;font-weight:700;}
+  #brand .t2{font-family:'Space Mono','Courier New',monospace;color:var(--cyan);
+    font-size:9px;letter-spacing:3px;margin-top:2px;}
+  #actions{display:flex;gap:8px;}
+  .abtn{
+    width:38px;height:38px;border:1px solid var(--line);border-radius:6px;
+    background:rgba(14,22,32,0.9);color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;cursor:pointer;user-select:none;
+  }
+  .abtn:active{background:rgba(87,211,255,0.15);}
+
+  #gl{position:fixed;inset:0;display:block;width:100%;height:100%;}
+  #badges{position:fixed;inset:0;pointer-events:none;z-index:10;}
+  .badge{
+    position:absolute;width:24px;height:24px;border-radius:50%;
+    border:1px solid var(--cyan);background:rgba(8,8,14,0.85);
+    color:var(--cyan);font-weight:700;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+    transform:translate(-50%,-50%);
+    box-shadow:0 0 8px rgba(87,211,255,0.4);
+  }
+
+  /* ---------- Onglet énoncés ---------- */
+  #tabEnonces{
+    position:fixed;left:12px;bottom:14px;z-index:25;
+    padding:9px 14px;border:1px solid var(--line);border-radius:6px;
+    background:rgba(14,22,32,0.92);color:var(--cyan);
+    font-family:'Space Mono','Courier New',monospace;font-size:11px;
+    letter-spacing:2px;cursor:pointer;user-select:none;
+  }
+  #tabEnonces:active{background:rgba(87,211,255,0.15);}
+
+  /* ---------- Bouton recentrer flottant ---------- */
+  #btnRecenter{
+    position:fixed;right:12px;bottom:14px;z-index:25;
+    width:46px;height:46px;border:1px solid var(--line);border-radius:50%;
+    background:rgba(14,22,32,0.92);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;user-select:none;
+    box-shadow:0 0 10px rgba(8,8,14,0.6);
+  }
+  #btnRecenter:active{background:rgba(87,211,255,0.15);}
+
+  /* ---------- Panneau énoncés ---------- */
+  #sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    max-height:72%;overflow-y:auto;
+    background:rgba(10,14,22,0.97);
+    border-top:1px solid var(--cyan);
+    padding:16px 16px 22px;
+    transform:translateY(105%);
+    transition:transform .28s ease;
+    touch-action:pan-y;
+  }
+  #sheet.open{transform:translateY(0);}
+  #sheet h2{font-size:13px;letter-spacing:3px;color:#eaf8ff;margin-bottom:4px;}
+  #sheet .sub{
+    font-family:'Space Mono','Courier New',monospace;
+    font-size:10px;color:var(--dim);letter-spacing:1px;margin-bottom:14px;
+  }
+  .enonce{
+    border:1px solid var(--line);border-radius:6px;
+    padding:11px 12px;margin-bottom:10px;background:var(--panel);
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .enonce .greek{
+    flex:0 0 34px;height:34px;border:1px solid var(--cyan);border-radius:50%;
+    color:var(--cyan);display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:700;
+  }
+  .enonce .body{flex:1;}
+  .enonce .txt{font-size:12.5px;line-height:1.45;}
+  .enonce .assign{
+    margin-top:8px;display:none;align-items:center;gap:8px;
+    font-family:'Space Mono','Courier New',monospace;font-size:11px;
+  }
+  .enonce.assigned .assign{display:flex;}
+  .enonce .chip{
+    color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;
+    padding:2px 8px;letter-spacing:1px;
+  }
+  .enonce .unassign{
+    color:#ff8fa3;border:1px solid #6e3644;border-radius:4px;
+    padding:2px 8px;cursor:pointer;background:none;
+    font-family:inherit;font-size:11px;
+  }
+  #sheetClose{
+    position:absolute;top:10px;right:12px;
+    width:32px;height:32px;border:1px solid var(--line);border-radius:6px;
+    background:none;color:var(--dim);font-size:15px;cursor:pointer;
+  }
+
+  /* ---------- Sélecteur planète ---------- */
+  #selector{
+    position:fixed;left:50%;bottom:20px;z-index:45;
+    transform:translate(-50%,140%);
+    transition:transform .22s ease;
+    width:min(92vw,420px);
+    background:rgba(10,14,22,0.97);
+    border:1px solid var(--cyan);border-radius:10px;
+    padding:14px 16px 16px;
+  }
+  #selector.open{transform:translate(-50%,0);}
+  #selName{
+    font-size:14px;letter-spacing:3px;color:#eaf8ff;font-weight:700;
+    margin-bottom:2px;text-transform:uppercase;
+  }
+  #selHint{
+    font-family:'Space Mono','Courier New',monospace;
+    font-size:10px;color:var(--dim);margin-bottom:12px;letter-spacing:1px;
+  }
+  #greekRow{display:flex;gap:10px;}
+  .gbtn{
+    flex:1;height:52px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel);color:var(--cyan);font-size:22px;
+    cursor:pointer;position:relative;font-family:inherit;
+  }
+  .gbtn:active{background:rgba(87,211,255,0.15);}
+  .gbtn.used{opacity:0.25;pointer-events:none;}
+  .gbtn.mine{
+    background:rgba(87,211,255,0.18);border-color:var(--cyan);
+    box-shadow:0 0 12px rgba(87,211,255,0.35);
+  }
+  #selClose{
+    position:absolute;top:8px;right:10px;width:30px;height:30px;
+    border:1px solid var(--line);border-radius:6px;background:none;
+    color:var(--dim);font-size:14px;cursor:pointer;
+  }
+
+  /* ---------- Toast échec ---------- */
+  #failToast{
+    position:fixed;top:66px;left:50%;transform:translateX(-50%);
+    z-index:55;padding:10px 18px;
+    border:1px solid #ff5c7a;border-radius:6px;
+    background:rgba(20,8,12,0.94);color:#ff8fa3;
+    font-family:'Space Mono','Courier New',monospace;
+    font-size:11px;letter-spacing:2px;
+    opacity:0;pointer-events:none;
+    transition:opacity .18s ease;
+    box-shadow:0 0 16px rgba(255,92,122,0.3);
+  }
+  #failToast.show{opacity:1;}
+
+  /* ---------- Overlay succès ---------- */
+  #success{
+    position:fixed;inset:0;z-index:60;display:none;
+    align-items:center;justify-content:center;flex-direction:column;
+    background:rgba(4,6,10,0.92);text-align:center;padding:24px;
+  }
+  #success.show{display:flex;}
+  #okRing{
+    width:110px;height:110px;border:2px solid var(--cyan);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 34px rgba(87,211,255,0.55),inset 0 0 22px rgba(87,211,255,0.25);
+    animation:pulse 2.2s ease-in-out infinite;
+    margin-bottom:26px;
+  }
+  #okRing svg{width:54px;height:54px;}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 24px rgba(87,211,255,0.4),inset 0 0 16px rgba(87,211,255,0.2);}
+    50%{box-shadow:0 0 46px rgba(87,211,255,0.8),inset 0 0 30px rgba(87,211,255,0.35);}
+  }
+  #success h1{color:#eaf8ff;font-size:20px;letter-spacing:6px;margin-bottom:10px;}
+  #success p{
+    font-family:'Space Mono','Courier New',monospace;
+    color:var(--cyan);font-size:12px;letter-spacing:2px;line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<header id="topbar">
+  <div id="left">
+    <div class="abtn" id="btnBack" title="Retour aux consignes">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#57d3ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </div>
+    <div id="brand">
+      <span class="t1">CURIOSITY</span>
+      <span class="t2">NEXOS · LIAISON RÉCEPTEURS</span>
+    </div>
+  </div>
+  <div id="actions">
+    <div class="abtn" id="btnFullscreen" title="Plein écran">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#57d3ff" stroke-width="1.6">
+        <path d="M7 2H2v5M13 2h5v5M7 18H2v-5M13 18h5v-5"/>
+      </svg>
+    </div>
+    <div class="abtn" id="btnClear" title="Tout effacer">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#57d3ff" stroke-width="1.6">
+        <path d="M3 6h14M8 6V4h4v2M5 6l1 11h8l1-11M8.5 9v5M11.5 9v5"/>
+      </svg>
+    </div>
+    <div class="abtn" id="btnValidate" title="Synchroniser">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="#57d3ff" stroke-width="1.7">
+        <path d="M16.8 6.2A7.2 7.2 0 003.6 8.4"/>
+        <path d="M3.2 13.8a7.2 7.2 0 0013.2-2.2"/>
+        <path d="M16.8 2.2v4h-4"/>
+        <path d="M3.2 17.8v-4h4"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<canvas id="gl"></canvas>
+<div id="badges"></div>
+
+<div id="tabEnonces">ÉNONCÉS</div>
+
+<div id="btnRecenter" title="Recentrer">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#57d3ff" stroke-width="1.6">
+    <circle cx="12" cy="12" r="6.5"/>
+    <circle cx="12" cy="12" r="1.4" fill="#57d3ff" stroke="none"/>
+    <path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/>
+  </svg>
+</div>
+
+<div id="sheet">
+  <button id="sheetClose">✕</button>
+  <h2>TRANSMISSION INTERCEPTÉE</h2>
+  <div class="sub">QUATRE RÉCEPTEURS IMPLANTÉS · IDENTIFIEZ LEURS PLANÈTES HÔTES</div>
+  <div id="enonces"></div>
+</div>
+
+<div id="selector">
+  <button id="selClose">✕</button>
+  <div id="selName">—</div>
+  <div id="selHint">ASSOCIER À UN ÉNONCÉ</div>
+  <div id="greekRow"></div>
+</div>
+
+<div id="failToast">ÉCHEC DE SYNCHRONISATION</div>
+
+<div id="success">
+  <div id="okRing">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#57d3ff" stroke-width="2.2">
+      <path d="M4 12.5l5.5 5.5L20 6.5"/>
+    </svg>
+  </div>
+  <h1>LIAISON ÉTABLIE</h1>
+  <p>QUATRE RÉCEPTEURS SYNCHRONISÉS<br>RÉSEAU NEXBRIDGE OPÉRATIONNEL<br><br>FRAGMENT DÉVERROUILLÉ · NX-Δ//2082</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ================= DONNÉES ÉNIGME ================= */
+
+var GREEK = ["α","β","γ","δ"];
+
+var ENONCES = [
+  {g:"α", txt:"Le récepteur Alpha s'est ancré près de la planète au champ magnétique le plus intense du système — un bouclier colossal généré par un océan d'hydrogène métallique.", answer:"Jupiter"},
+  {g:"β", txt:"Le récepteur Bêta orbite la seule planète à rotation rétrograde : le Soleil s'y lève à l'ouest, au-dessus d'une atmosphère écrasante de dioxyde de carbone.", answer:"Vénus"},
+  {g:"γ", txt:"Le récepteur Gamma s'est posé au pied du plus haut volcan connu du système solaire, sur un monde escorté par deux petites lunes difformes.", answer:"Mars"},
+  {g:"δ", txt:"Le récepteur Delta enregistre les vents les plus violents jamais mesurés — plus de 2 000 km/h — dans une atmosphère teintée de bleu profond par le méthane.", answer:"Neptune"}
+];
+
+var assign = {};
+
+/* ================= ÉLÉMENTS KÉPLÉRIENS (JPL, J2000 + dérives/siècle) ================= */
+var KEP = [
+ {name:"Mercure", el:[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593],
+                 rt:[0.00000037,0.00001906,-0.00594749,149472.67411175,0.16047689,-0.12534081]},
+ {name:"Vénus",   el:[0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255],
+                 rt:[0.00000390,-0.00004107,-0.00078890,58517.81538729,0.00268329,-0.27769418]},
+ {name:"Terre",   el:[1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0.0],
+                 rt:[0.00000562,-0.00004392,-0.01294668,35999.37244981,0.32327364,0.0]},
+ {name:"Mars",    el:[1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891],
+                 rt:[0.00001847,0.00007882,-0.00813131,19140.30268499,0.44441088,-0.29257343]},
+ {name:"Jupiter", el:[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909],
+                 rt:[-0.00011607,-0.00013253,-0.00183714,3034.74612775,0.21252668,0.20469106]},
+ {name:"Saturne", el:[9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448],
+                 rt:[-0.00125060,-0.00050991,0.00193609,1222.49362201,-0.41897216,-0.28867794]},
+ {name:"Uranus",  el:[19.18916464,0.04725744,0.77263783,313.23810451,170.95427630,74.01692503],
+                 rt:[-0.00196176,-0.00004397,-0.00242939,428.48202785,0.40805281,0.04240589]},
+ {name:"Neptune", el:[30.06992276,0.00859048,1.77004347,-55.12002969,44.96476227,131.78422574],
+                 rt:[0.00026291,0.00005105,0.00035372,218.45945325,-0.32241464,-0.00508664]}
+];
+
+var DISP_A = [70,105,145,185,260,330,400,465];
+var DISP_R = [2.2,5.0,5.3,3.0,16,13.5,8.0,7.8];
+/* ===== échelle de temps ===== */
+/* La Terre fait un tour sur elle-même en 2 minutes ; son année dure donc
+   2 min × 365,25. Toutes les autres planètes (rotations ET révolutions)
+   suivent la même accélération, proportionnelle à leurs périodes réelles. */
+var EARTH_DAY_SECONDS = 120;
+var TIME_MULT = (23.934*3600)/EARTH_DAY_SECONDS; /* ≈ 718 × le temps réel */
+/* périodes de rotation sidérale réelles, en heures (négatif = rétrograde) */
+var SPIN_HOURS = [1407.6,-5832.5,23.93,24.62,9.93,10.66,-17.24,16.11];
+
+var DEG = Math.PI/180;
+
+function solveKepler(M,e){
+  var E = M + e*Math.sin(M);
+  for(var i=0;i<8;i++){
+    var dE = (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E));
+    E -= dE;
+    if(Math.abs(dE)<1e-8) break;
+  }
+  return E;
+}
+function eclFromE(k,T,E){
+  var a = k.el[0]+k.rt[0]*T,
+      e = k.el[1]+k.rt[1]*T,
+      I = (k.el[2]+k.rt[2]*T)*DEG,
+      vp= (k.el[4]+k.rt[4]*T)*DEG,
+      Om= (k.el[5]+k.rt[5]*T)*DEG,
+      w = vp-Om;
+  var xp = a*(Math.cos(E)-e),
+      yp = a*Math.sqrt(1-e*e)*Math.sin(E);
+  var cw=Math.cos(w),sw=Math.sin(w),cO=Math.cos(Om),sO=Math.sin(Om),cI=Math.cos(I);
+  var x = (cw*cO - sw*sO*cI)*xp + (-sw*cO - cw*sO*cI)*yp;
+  var y = (cw*sO + sw*cO*cI)*xp + (-sw*sO + cw*cO*cI)*yp;
+  var z = (Math.sin(w)*Math.sin(I))*xp + (Math.cos(w)*Math.sin(I))*yp;
+  return {x:x,y:y,z:z,a:a};
+}
+
+var planetsData=[];
+var JD0=0,SIM_T0=Date.now();
+(function(){
+  JD0=SIM_T0/86400000+2440587.5;
+  var T=(JD0-2451545.0)/36525.0;
+  for(var i=0;i<KEP.length;i++){
+    var k=KEP[i];
+    var L=(k.el[3]+k.rt[3]*T)*DEG,
+        vp=(k.el[4]+k.rt[4]*T)*DEG,
+        e=k.el[1]+k.rt[1]*T;
+    var M=L-vp;
+    M=M%(2*Math.PI);if(M>Math.PI)M-=2*Math.PI;if(M<-Math.PI)M+=2*Math.PI;
+    var E=solveKepler(M,e);
+    var pos=eclFromE(k,T,E);
+    var s=DISP_A[i]/pos.a;
+    var path=[];
+    for(var j=0;j<=200;j++){
+      var p=eclFromE(k,T,j/200*2*Math.PI);
+      path.push(new THREE.Vector3(p.x*s,p.z*s*0.6,-p.y*s));
+    }
+    /* vitesse angulaire de rotation propre : réelle × TIME_MULT (rad/s) */
+    var spinRate=(2*Math.PI/(Math.abs(SPIN_HOURS[i])*3600))
+                 *(SPIN_HOURS[i]<0?-1:1)*TIME_MULT;
+    planetsData.push({
+      name:k.name, r:DISP_R[i], idx:i, spin:spinRate, s:s,
+      pos:new THREE.Vector3(pos.x*s,pos.z*s*0.6,-pos.y*s),
+      path:path
+    });
+  }
+})();
+
+/* position héliocentrique affichée d'une planète à un instant julien donné */
+function computePlanetPos(idx,JD){
+  var k=KEP[idx],T=(JD-2451545.0)/36525.0;
+  var L=(k.el[3]+k.rt[3]*T)*DEG,
+      vp=(k.el[4]+k.rt[4]*T)*DEG,
+      e=k.el[1]+k.rt[1]*T;
+  var M=L-vp;
+  M=M%(2*Math.PI);if(M>Math.PI)M-=2*Math.PI;if(M<-Math.PI)M+=2*Math.PI;
+  var E=solveKepler(M,e);
+  var p=eclFromE(k,T,E);
+  var s=planetsData[idx].s;
+  return new THREE.Vector3(p.x*s,p.z*s*0.6,-p.y*s);
+}
+
+/* ================= UTILITAIRES TEXTURE ================= */
+
+function mkCanvas(w,h){var c=document.createElement("canvas");c.width=w;c.height=h;return c;}
+
+/* bruit valeur simple, tuilable horizontalement */
+function makeNoise(w,h,oct){
+  var data=new Float32Array(w*h);
+  var amp=1,tot=0,scale=4;
+  for(var o=0;o<oct;o++){
+    var gw=scale,gh=Math.max(2,Math.round(scale*h/w));
+    var grid=[];
+    for(var gy=0;gy<=gh;gy++){grid[gy]=[];for(var gx=0;gx<gw;gx++)grid[gy][gx]=Math.random();}
+    for(var y=0;y<h;y++){
+      var fy=y/h*gh,y0=Math.floor(fy),ty=fy-y0;
+      var y1=Math.min(y0+1,gh);
+      for(var x=0;x<w;x++){
+        var fx=x/w*gw,x0=Math.floor(fx)%gw,tx=fx-Math.floor(fx);
+        var x1=(x0+1)%gw;
+        var sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);
+        var v=grid[y0][x0]*(1-sx)*(1-sy)+grid[y0][x1]*sx*(1-sy)+
+              grid[y1][x0]*(1-sx)*sy+grid[y1][x1]*sx*sy;
+        data[y*w+x]+=v*amp;
+      }
+    }
+    tot+=amp;amp*=0.5;scale*=2;
+  }
+  for(var i=0;i<data.length;i++)data[i]/=tot;
+  return data;
+}
+
+function lerpCol(c1,c2,t){
+  return [c1[0]+(c2[0]-c1[0])*t,c1[1]+(c2[1]-c1[1])*t,c1[2]+(c2[2]-c1[2])*t];
+}
+function ramp(stops,t){
+  for(var i=0;i<stops.length-1;i++){
+    if(t<=stops[i+1][0]){
+      var t2=(t-stops[i][0])/(stops[i+1][0]-stops[i][0]);
+      return lerpCol(stops[i][1],stops[i+1][1],Math.max(0,Math.min(1,t2)));
+    }
+  }
+  return stops[stops.length-1][1];
+}
+
+/* texture équirectangulaire à partir d'une rampe + bruit + bandes */
+function texFromField(w,h,fn){
+  var c=mkCanvas(w,h),g=c.getContext("2d");
+  var img=g.createImageData(w,h),d=img.data;
+  for(var y=0;y<h;y++){
+    for(var x=0;x<w;x++){
+      var col=fn(x/w,y/h,x,y);
+      var i=(y*w+x)*4;
+      d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=255;
+    }
+  }
+  g.putImageData(img,0,0);
+  return c;
+}
+
+/* ================= TEXTURES PLANÈTES (équirect 1024x512) ================= */
+
+function planetTexture(idx){
+  /* haute résolution pour les planètes riches en détails */
+  var W=(idx===2||idx===3||idx===4||idx===5||idx===7)?1536:1024;
+  var H=W/2;
+  var n1=makeNoise(W,H,5), n2=makeNoise(W,H,4), n3=makeNoise(W,H,6);
+  var c;
+
+  switch(idx){
+  case 0: /* MERCURE — régolithe cratérisé */
+    c=texFromField(W,H,function(u,v,x,y){
+      var n=n1[y*W+x]*0.7+n3[y*W+x]*0.3;
+      return ramp([[0,[50,49,47]],[0.4,[94,93,90]],[0.7,[136,134,130]],[1,[184,182,177]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      /* grands bassins d'impact (type Caloris) */
+      for(var b=0;b<4;b++){
+        var bx=Math.random()*W,by=H*(0.2+Math.random()*0.6),br=34+Math.random()*40;
+        var rg=g.createRadialGradient(bx,by,br*0.2,bx,by,br);
+        rg.addColorStop(0,"rgba(120,110,98,0.5)");
+        rg.addColorStop(0.75,"rgba(70,62,54,0.45)");
+        rg.addColorStop(0.9,"rgba(180,170,155,0.4)");
+        rg.addColorStop(1,"rgba(180,170,155,0)");
+        g.fillStyle=rg;g.beginPath();g.arc(bx,by,br,0,7);g.fill();
+      }
+      for(var i=0;i<760;i++){
+        var x=Math.random()*W,y=H*0.05+Math.random()*H*0.9;
+        var r=1+Math.pow(Math.random(),2.4)*24;
+        g.globalAlpha=0.5;
+        g.fillStyle="#2e2a26";
+        g.beginPath();g.arc(x,y,r,0,7);g.fill();
+        g.globalAlpha=0.55;
+        g.strokeStyle="#c8c0b2";g.lineWidth=Math.max(0.8,r*0.16);
+        g.beginPath();g.arc(x,y,r,Math.PI*1.05,Math.PI*1.95);g.stroke();
+        g.globalAlpha=0.35;g.fillStyle="#8a8276";
+        g.beginPath();g.arc(x,y,r*0.45,0,7);g.fill();
+        /* pic central des gros cratères */
+        if(r>10){
+          g.globalAlpha=0.5;g.fillStyle="#d8d0c2";
+          g.beginPath();g.arc(x,y,r*0.12,0,7);g.fill();
+        }
+        g.globalAlpha=1;
+        if(x-r<0){g.save();g.translate(W,0);g.globalAlpha=0.5;g.fillStyle="#2e2a26";
+          g.beginPath();g.arc(x,y,r,0,7);g.fill();g.restore();}
+      }
+      /* rayons éjectas */
+      for(i=0;i<14;i++){
+        var cx=Math.random()*W,cy=H*0.15+Math.random()*H*0.7;
+        g.globalAlpha=0.12;g.strokeStyle="#e8e2d6";g.lineWidth=1.2;
+        for(var rj=0;rj<16;rj++){
+          var a=Math.random()*7;
+          g.beginPath();g.moveTo(cx,cy);
+          g.lineTo(cx+Math.cos(a)*(24+Math.random()*70),cy+Math.sin(a)*(16+Math.random()*44));
+          g.stroke();
+        }
+        g.globalAlpha=1;
+      }
+    })();
+    break;
+
+  case 1: /* VÉNUS — voiles sulfuriques en chevrons */
+    c=texFromField(W,H,function(u,v,x,y){
+      var lat=(v-0.5)*2;
+      var warp=n2[y*W+x]*0.5;
+      var band=Math.sin(v*22+u*10+warp*9+Math.sin(u*6.28*2)*1.4)*0.5+0.5;
+      var n=0.42+n1[y*W+x]*0.34+band*0.2;
+      var pole=Math.pow(Math.abs(lat),3)*0.15;
+      n=Math.max(0,Math.min(1,n-pole));
+      return ramp([[0,[198,170,122]],[0.5,[226,204,158]],[1,[248,238,208]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      /* structure nuageuse en Y (observations UV) */
+      g.globalAlpha=0.2;g.strokeStyle="#8a6438";g.lineWidth=16;
+      g.beginPath();
+      g.moveTo(W*0.5,H*0.18);
+      g.quadraticCurveTo(W*0.42,H*0.42,W*0.28,H*0.5);
+      g.moveTo(W*0.5,H*0.18);
+      g.quadraticCurveTo(W*0.58,H*0.42,W*0.72,H*0.5);
+      g.moveTo(W*0.5,H*0.18);
+      g.lineTo(W*0.5,H*0.02);
+      g.stroke();
+      g.globalAlpha=1;
+      /* vortex polaires */
+      var poles=[[0.5,0.03],[0.5,0.97]];
+      for(var i=0;i<2;i++){
+        var px=W*poles[i][0],py=H*poles[i][1];
+        g.globalAlpha=0.3;g.strokeStyle="#f8ecd0";g.lineWidth=3;
+        for(var s=0;s<3;s++){
+          g.beginPath();
+          for(var a=0;a<9;a+=0.2){
+            var rr=3+a*3+s*4;
+            var qx=px+Math.cos(a+s)*rr,qy=py+Math.sin(a+s)*rr*0.4;
+            if(a===0)g.moveTo(qx,qy);else g.lineTo(qx,qy);
+          }
+          g.stroke();
+        }
+        g.globalAlpha=1;
+      }
+    })();
+    break;
+
+  case 2: /* TERRE — continents réels, océans profonds, relief */
+    /* océan : profondeur variable par bruit, sans motifs géométriques */
+    c=texFromField(W,H,function(u,v,x,y){
+      var d=n1[y*W+x]*0.6+n3[y*W+x]*0.4;
+      return ramp([[0,[6,22,58]],[0.45,[12,42,96]],[0.75,[24,70,134]],[1,[38,96,164]]],d);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      function px(lon){return (lon+180)/360*W;}
+      function py(lat){return (90-lat)/180*H;}
+      /* --- côtes réelles simplifiées (lon,lat) --- */
+      var LAND=[
+        /* Amérique du Nord */
+        [[-168,66],[-165,60],[-156,58],[-150,60],[-140,60],[-135,57],[-130,54],
+         [-125,49],[-124,40],[-117,33],[-110,24],[-105,20],[-97,16],[-94,16],
+         [-90,14],[-83,9],[-78,7],[-81,25],[-80,32],[-75,35],[-70,42],[-66,45],
+         [-60,47],[-65,60],[-78,62],[-85,66],[-95,69],[-110,68],[-125,70],
+         [-140,70],[-155,71],[-168,66]],
+        /* Amérique du Sud */
+        [[-78,7],[-70,12],[-62,10],[-52,5],[-44,-3],[-35,-7],[-38,-13],[-40,-22],
+         [-48,-28],[-53,-34],[-58,-39],[-65,-45],[-70,-54],[-73,-50],[-75,-40],
+         [-70,-30],[-70,-18],[-77,-12],[-81,-5],[-78,7]],
+        /* Afrique */
+        [[-17,15],[-17,21],[-10,31],[0,37],[10,37],[20,32],[32,31],[35,27],
+         [43,11],[51,12],[48,5],[42,-1],[40,-11],[35,-20],[32,-29],[25,-34],
+         [18,-34],[12,-17],[8,-1],[9,4],[-5,5],[-8,9],[-13,9],[-17,15]],
+        /* Eurasie */
+        [[-9,43],[-2,36],[3,43],[10,44],[19,40],[23,36],[27,41],[36,45],
+         [48,42],[50,37],[57,40],[67,37],[61,25],[67,24],[72,20],[77,8],
+         [80,13],[87,22],[92,22],[98,10],[104,1],[104,10],[109,12],[122,31],
+         [122,40],[127,42],[135,44],[142,60],[160,60],[170,66],[179,68],
+         [179,72],[140,73],[110,74],[90,73],[70,68],[55,68],[40,66],[30,70],
+         [25,71],[15,68],[5,62],[-1,51],[-5,48],[-9,43]],
+        /* péninsule Arabique */
+        [[39,32],[48,30],[60,25],[58,16],[50,13],[43,12],[35,20],[39,32]],
+        /* Australie */
+        [[114,-22],[122,-17],[131,-12],[137,-12],[142,-11],[146,-15],[149,-20],
+         [153,-27],[150,-37],[144,-38],[140,-36],[136,-35],[131,-31],[124,-33],
+         [115,-34],[113,-26],[114,-22]],
+        /* Madagascar */
+        [[44,-12],[50,-16],[47,-25],[43,-22],[44,-12]],
+        /* Royaume-Uni */
+        [[-5,50],[1,52],[-2,58],[-7,57],[-5,50]],
+        /* Japon */
+        [[130,31],[141,35],[142,43],[140,45],[136,38],[130,31]],
+        /* Sumatra */
+        [[95,5],[106,-6],[102,-6],[95,2],[95,5]],
+        /* Bornéo */
+        [[109,1],[119,2],[117,-4],[110,-2],[109,1]],
+        /* Nouvelle-Guinée */
+        [[131,-1],[141,-3],[147,-7],[138,-8],[131,-4],[131,-1]],
+        /* Nouvelle-Zélande */
+        [[167,-41],[174,-36],[178,-38],[172,-44],[167,-41]]
+      ];
+      var ICE=[
+        /* Groenland */
+        [[-45,60],[-25,70],[-20,76],[-30,83],[-55,82],[-60,75],[-52,65],[-45,60]],
+        /* Antarctique */
+        [[-179,-65],[-120,-70],[-60,-66],[0,-68],[60,-66],[120,-70],[179,-65],
+         [179,-89],[-179,-89],[-179,-65]]
+      ];
+      function tracePoly(ctx,poly){
+        ctx.beginPath();
+        for(var i=0;i<poly.length;i++){
+          var X=px(poly[i][0]),Y=py(poly[i][1]);
+          if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);
+        }
+        ctx.closePath();
+      }
+      /* calque terre séparé pour composer le relief dedans uniquement */
+      var lc=mkCanvas(W,H),lg=lc.getContext("2d");
+      lg.fillStyle="#3e7a3c";
+      for(var i=0;i<LAND.length;i++){tracePoly(lg,LAND[i]);lg.fill();}
+      /* variation de terrain par bruit, confinée aux terres */
+      lg.globalCompositeOperation="source-atop";
+      for(var yy=0;yy<H;yy+=3){
+        for(var xx=0;xx<W;xx+=3){
+          var nv=n1[yy*W+xx]*0.65+n3[yy*W+xx]*0.35;
+          var col=ramp([[0,[30,84,40]],[0.4,[58,112,52]],
+                        [0.7,[108,128,70]],[1,[150,138,96]]],nv);
+          lg.fillStyle="rgba("+col[0]+","+col[1]+","+col[2]+",0.75)";
+          lg.fillRect(xx,yy,3,3);
+        }
+      }
+      /* déserts réels (Sahara, Arabie, Gobi, Australie, Kalahari, Mojave) */
+      var DES=[[10,23,90,32],[46,24,42,20],[100,43,46,16],
+               [133,-25,52,22],[21,-24,26,14],[-112,35,26,12]];
+      for(i=0;i<DES.length;i++){
+        var dxp=px(DES[i][0]),dyp=py(DES[i][1]);
+        var rg=lg.createRadialGradient(dxp,dyp,4,dxp,dyp,DES[i][2]);
+        rg.addColorStop(0,"rgba(206,178,120,0.85)");
+        rg.addColorStop(1,"rgba(206,178,120,0)");
+        lg.fillStyle=rg;
+        lg.save();lg.translate(dxp,dyp);
+        lg.scale(1,DES[i][3]/DES[i][2]);lg.translate(-dxp,-dyp);
+        lg.beginPath();lg.arc(dxp,dyp,DES[i][2],0,7);lg.fill();lg.restore();
+      }
+      /* chaînes de montagnes (Andes, Rocheuses, Himalaya, Alpes, Oural) */
+      var MTS=[
+        [[-70,5],[-70,-15],[-68,-30],[-71,-45]],
+        [[-122,50],[-115,42],[-110,34]],
+        [[70,36],[80,33],[90,29],[97,28]],
+        [[6,46],[12,47],[16,47]],
+        [[58,50],[60,58],[62,66]]
+      ];
+      for(i=0;i<MTS.length;i++){
+        lg.strokeStyle="rgba(108,88,58,0.85)";lg.lineWidth=5;
+        lg.beginPath();
+        for(var mj=0;mj<MTS[i].length;mj++){
+          var mx=px(MTS[i][mj][0]),my=py(MTS[i][mj][1]);
+          if(mj===0)lg.moveTo(mx,my);else lg.lineTo(mx,my);
+        }
+        lg.stroke();
+        lg.strokeStyle="rgba(214,200,168,0.6)";lg.lineWidth=1.6;
+        lg.stroke();
+      }
+      lg.globalCompositeOperation="source-over";
+      /* glaces : Groenland et Antarctique */
+      lg.fillStyle="#e6f0f6";
+      for(i=0;i<ICE.length;i++){tracePoly(lg,ICE[i]);lg.fill();}
+      /* littoral : léger liseré clair peu profond autour des terres */
+      lg.globalCompositeOperation="destination-over";
+      lg.strokeStyle="rgba(80,180,190,0.5)";lg.lineWidth=4;
+      for(i=0;i<LAND.length;i++){tracePoly(lg,LAND[i]);lg.stroke();}
+      lg.globalCompositeOperation="source-over";
+      g.drawImage(lc,0,0);
+    })();
+    break;
+
+  case 3: /* MARS — oxydes, Valles Marineris, volcans, calottes */
+    c=texFromField(W,H,function(u,v,x,y){
+      var lat=Math.abs(v-0.5)*2;
+      var n=n1[y*W+x]*0.6+n3[y*W+x]*0.4;
+      if(lat>0.9+n2[y*W+x]*0.04){var ic=225+n2[y*W+x]*30;return[ic,ic-6,ic-14];}
+      var dark=n2[y*W+x]>0.66?0.16:0;
+      n=Math.max(0,n-dark);
+      return ramp([[0,[104,58,34]],[0.35,[152,94,52]],[0.65,[198,136,86]],[1,[230,180,130]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      /* Syrtis Major : grande région basaltique sombre (lon ~70E, lat ~10N) */
+      var sxp=W*0.695,syp=H*0.44;
+      var sg=g.createRadialGradient(sxp,syp,6,sxp,syp,W*0.075);
+      sg.addColorStop(0,"rgba(58,44,38,0.6)");
+      sg.addColorStop(0.7,"rgba(74,52,42,0.4)");
+      sg.addColorStop(1,"rgba(74,52,42,0)");
+      g.fillStyle=sg;
+      g.save();g.translate(sxp,syp);g.scale(1,1.5);g.translate(-sxp,-syp);
+      g.beginPath();g.arc(sxp,syp,W*0.075,0,7);g.fill();g.restore();
+      /* Acidalia Planitia sombre au nord */
+      var ag=g.createRadialGradient(W*0.42,H*0.26,4,W*0.42,H*0.26,W*0.06);
+      ag.addColorStop(0,"rgba(70,50,40,0.45)");
+      ag.addColorStop(1,"rgba(70,50,40,0)");
+      g.fillStyle=ag;g.beginPath();g.arc(W*0.42,H*0.26,W*0.06,0,7);g.fill();
+    })();
+    (function(){
+      var g=c.getContext("2d");
+      /* Valles Marineris */
+      g.strokeStyle="rgba(60,24,14,0.75)";g.lineWidth=7;
+      g.beginPath();g.moveTo(W*0.32,H*0.55);
+      g.bezierCurveTo(W*0.42,H*0.52,W*0.5,H*0.56,W*0.58,H*0.53);g.stroke();
+      g.strokeStyle="rgba(60,24,14,0.4)";g.lineWidth=13;
+      g.beginPath();g.moveTo(W*0.34,H*0.55);
+      g.bezierCurveTo(W*0.44,H*0.52,W*0.5,H*0.56,W*0.56,H*0.53);g.stroke();
+      /* dôme Olympus + Tharsis */
+      var vol=[[0.2,0.42,20],[0.26,0.5,12],[0.24,0.58,10],[0.29,0.44,9]];
+      for(var i=0;i<vol.length;i++){
+        var vx=W*vol[i][0],vy=H*vol[i][1],vr=vol[i][2];
+        var rg=g.createRadialGradient(vx,vy,0,vx,vy,vr);
+        rg.addColorStop(0,"rgba(230,170,120,0.9)");
+        rg.addColorStop(0.7,"rgba(150,70,36,0.5)");
+        rg.addColorStop(1,"rgba(150,70,36,0)");
+        g.fillStyle=rg;g.beginPath();g.arc(vx,vy,vr,0,7);g.fill();
+        g.fillStyle="rgba(70,28,16,0.8)";
+        g.beginPath();g.arc(vx,vy,vr*0.18,0,7);g.fill();
+      }
+      /* bassin Hellas (grande dépression claire) */
+      var hg=g.createRadialGradient(W*0.74,H*0.66,4,W*0.74,H*0.66,34);
+      hg.addColorStop(0,"rgba(232,180,130,0.65)");
+      hg.addColorStop(1,"rgba(232,180,130,0)");
+      g.fillStyle=hg;g.beginPath();g.arc(W*0.74,H*0.66,34,0,7);g.fill();
+      /* champ de cratères */
+      for(var ci=0;ci<300;ci++){
+        var cx2=Math.random()*W,cy2=H*(0.08+Math.random()*0.84);
+        var cr=0.8+Math.pow(Math.random(),2.5)*10;
+        g.globalAlpha=0.4;g.fillStyle="#5a2414";
+        g.beginPath();g.arc(cx2,cy2,cr,0,7);g.fill();
+        g.globalAlpha=0.4;g.strokeStyle="#e0a878";g.lineWidth=Math.max(0.6,cr*0.15);
+        g.beginPath();g.arc(cx2,cy2,cr,Math.PI*1.1,Math.PI*1.9);g.stroke();
+        g.globalAlpha=1;
+      }
+      /* tempêtes de poussière voilées */
+      g.globalAlpha=0.12;g.fillStyle="#e8b088";
+      for(ci=0;ci<5;ci++){
+        var dx2=Math.random()*W,dy2=H*(0.3+Math.random()*0.4);
+        g.beginPath();g.ellipse(dx2,dy2,30+Math.random()*50,10+Math.random()*16,Math.random()*3,0,7);g.fill();
+      }
+      g.globalAlpha=1;
+    })();
+    break;
+
+  case 4: /* JUPITER — bandes turbulentes + GRS */
+    c=texFromField(W,H,function(u,v,x,y){
+      var warp=(n2[y*W+x]-0.5)*0.16+(n3[y*W+x]-0.5)*0.07;
+      var vv=v+warp*Math.sin(v*3.14);
+      var band=Math.sin(vv*30)*0.5+Math.sin(vv*13+1.2)*0.3+Math.sin(vv*53+u*12+3)*0.2;
+      band=band*0.5+0.5;
+      var turb=n1[y*W+x]*0.25;
+      var n=Math.max(0,Math.min(1,band*0.8+turb));
+      return ramp([[0,[138,92,58]],[0.3,[176,130,90]],[0.55,[216,192,158]],[0.8,[240,230,208]],[1,[250,246,232]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      var gx=W*0.66,gy=H*0.63;
+      var rg=g.createRadialGradient(gx,gy,2,gx,gy,42);
+      rg.addColorStop(0,"rgba(226,120,84,0.95)");
+      rg.addColorStop(0.5,"rgba(196,86,54,0.9)");
+      rg.addColorStop(0.8,"rgba(160,96,66,0.55)");
+      rg.addColorStop(1,"rgba(160,96,66,0)");
+      g.fillStyle=rg;
+      g.save();g.translate(gx,gy);g.scale(1.7,1);g.translate(-gx,-gy);
+      g.beginPath();g.arc(gx,gy,42,0,7);g.fill();
+      /* spirale interne */
+      g.strokeStyle="rgba(255,200,170,0.5)";g.lineWidth=2;
+      g.beginPath();
+      for(var a=0;a<12;a+=0.15){
+        var rr=3+a*2.4;
+        var px=gx+Math.cos(a)*rr,py=gy+Math.sin(a)*rr*0.8;
+        if(a===0)g.moveTo(px,py);else g.lineTo(px,py);
+      }
+      g.stroke();
+      g.restore();
+      /* tourbillons blancs (ovales) */
+      for(var i=0;i<24;i++){
+        var wx=Math.random()*W,wy=H*(0.2+Math.random()*0.6);
+        var wr=2+Math.random()*7;
+        g.globalAlpha=0.4;g.fillStyle="rgba(255,252,242,0.65)";
+        g.beginPath();g.ellipse(wx,wy,wr*1.5,wr,0,0,7);g.fill();
+        g.globalAlpha=0.35;g.strokeStyle="#b89468";g.lineWidth=1;
+        g.beginPath();g.ellipse(wx,wy,wr*1.5,wr,0,0,7);g.stroke();
+        g.globalAlpha=1;
+      }
+      /* festons bleutés le long de la bande équatoriale */
+      g.globalAlpha=0.3;g.strokeStyle="#5a6a8a";g.lineWidth=3;
+      for(i=0;i<11;i++){
+        var fx=i/11*W+Math.random()*20,fy=H*0.47;
+        g.beginPath();
+        g.moveTo(fx,fy);
+        g.quadraticCurveTo(fx+16,fy+22,fx+34,fy+6);
+        g.stroke();
+      }
+      g.globalAlpha=1;
+      /* filaments de cisaillement entre bandes */
+      g.globalAlpha=0.18;g.strokeStyle="#7a5638";g.lineWidth=1.2;
+      for(i=0;i<30;i++){
+        var sy=H*(0.15+Math.random()*0.7),sx=Math.random()*W;
+        g.beginPath();g.moveTo(sx,sy);
+        g.bezierCurveTo(sx+30,sy+4,sx+60,sy-4,sx+95,sy+2);
+        g.stroke();
+      }
+      g.globalAlpha=1;
+    })();
+    break;
+
+  case 5: /* SATURNE — bandes pastel soyeuses */
+    c=texFromField(W,H,function(u,v,x,y){
+      var warp=(n2[y*W+x]-0.5)*0.08;
+      var vv=v+warp;
+      var band=Math.sin(vv*24)*0.4+Math.sin(vv*9+0.8)*0.4+Math.sin(vv*47+u*6)*0.2;
+      band=band*0.5+0.5;
+      var n=0.35+band*0.5+n1[y*W+x]*0.15;
+      var pole=Math.pow(Math.abs(v-0.5)*2,4)*0.14;
+      n=Math.max(0,Math.min(1,n-pole));
+      return ramp([[0,[176,148,108]],[0.35,[206,182,140]],[0.65,[228,208,168]],[1,[242,228,196]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      /* hexagone polaire nord */
+      var hx=W*0.5,hy=H*0.045,hr=26;
+      g.strokeStyle="rgba(150,120,80,0.6)";g.lineWidth=3;
+      g.beginPath();
+      for(var i=0;i<=6;i++){
+        var a=i/6*Math.PI*2;
+        var px=hx+Math.cos(a)*hr,py=hy+Math.sin(a)*hr*0.32;
+        if(i===0)g.moveTo(px,py);else g.lineTo(px,py);
+      }
+      g.stroke();
+      g.fillStyle="rgba(120,94,62,0.35)";g.fill();
+      /* grandes tempêtes blanches */
+      for(i=0;i<7;i++){
+        var sx=Math.random()*W,sy=H*(0.25+Math.random()*0.5),sr=3+Math.random()*6;
+        g.globalAlpha=0.5;g.fillStyle="#fdf6e4";
+        g.beginPath();g.ellipse(sx,sy,sr*1.8,sr,0,0,7);g.fill();
+        g.globalAlpha=0.25;g.fillStyle="#fdf6e4";
+        g.beginPath();g.ellipse(sx+sr*3,sy,sr*3,sr*0.6,0,0,7);g.fill();
+        g.globalAlpha=1;
+      }
+      /* fines stries zonales */
+      g.globalAlpha=0.12;g.strokeStyle="#8a6c46";g.lineWidth=1;
+      for(i=0;i<40;i++){
+        var yy=H*(0.1+Math.random()*0.8);
+        g.beginPath();g.moveTo(0,yy);
+        g.bezierCurveTo(W*0.3,yy+2,W*0.7,yy-2,W,yy);g.stroke();
+      }
+      g.globalAlpha=1;
+    })();
+    break;
+
+  case 6: /* URANUS — cyan glacé quasi uniforme (Voyager 2) */
+    c=texFromField(W,H,function(u,v,x,y){
+      var band=Math.sin(v*16+n2[y*W+x]*2)*0.5+0.5;
+      var n=0.62+band*0.08+n1[y*W+x]*0.1;
+      n=Math.max(0,Math.min(1,n));
+      return ramp([[0,[142,196,206]],[0.5,[170,218,226]],[1,[200,236,240]]],n);
+    });
+    break;
+
+  case 7: /* NEPTUNE — azur profond, rafales, tache sombre */
+    c=texFromField(W,H,function(u,v,x,y){
+      var warp=(n2[y*W+x]-0.5)*0.2;
+      var band=Math.sin((v+warp)*20)*0.5+Math.sin((v+warp)*8+2)*0.5;
+      band=band*0.5+0.5;
+      var n=band*0.5+n1[y*W+x]*0.3+0.1;
+      return ramp([[0,[22,42,118]],[0.4,[38,70,162]],[0.7,[68,110,202]],[1,[118,158,226]]],n);
+    });
+    (function(){
+      var g=c.getContext("2d");
+      var dx=W*0.38,dy=H*0.42;
+      var rg=g.createRadialGradient(dx,dy,2,dx,dy,30);
+      rg.addColorStop(0,"rgba(10,16,60,0.95)");
+      rg.addColorStop(0.7,"rgba(16,26,80,0.7)");
+      rg.addColorStop(1,"rgba(16,26,80,0)");
+      g.fillStyle=rg;
+      g.save();g.translate(dx,dy);g.scale(1.6,1);g.translate(-dx,-dy);
+      g.beginPath();g.arc(dx,dy,30,0,7);g.fill();g.restore();
+      /* nuage brillant "Scooter" sous la tache */
+      g.globalAlpha=0.75;g.fillStyle="#eef4ff";
+      g.beginPath();g.ellipse(W*0.42,H*0.55,16,4,0.1,0,7);g.fill();
+      g.globalAlpha=0.45;
+      g.beginPath();g.ellipse(W*0.58,H*0.3,12,3,-0.1,0,7);g.fill();
+      g.globalAlpha=1;
+      for(var i=0;i<16;i++){
+        var yy=H*(0.12+Math.random()*0.76);
+        g.globalAlpha=0.2;g.strokeStyle="#dce8ff";g.lineWidth=1.5+Math.random()*3;
+        g.beginPath();g.moveTo(0,yy);
+        g.bezierCurveTo(W*0.3,yy-16,W*0.7,yy+16,W,yy);g.stroke();
+        g.globalAlpha=1;
+      }
+      /* cirrus de méthane fins et brillants */
+      g.globalAlpha=0.5;g.strokeStyle="#f4f8ff";g.lineWidth=1;
+      for(i=0;i<12;i++){
+        var cy2=H*(0.2+Math.random()*0.6),cx2=Math.random()*W;
+        g.beginPath();g.moveTo(cx2,cy2);
+        g.quadraticCurveTo(cx2+30,cy2-3,cx2+70,cy2+1);g.stroke();
+      }
+      g.globalAlpha=1;
+    })();
+    break;
+  }
+  /* adoucissement des pôles : fondu vers la couleur moyenne locale,
+     supprime le pincement visible des textures équirectangulaires */
+  (function(){
+    var g=c.getContext("2d");
+    function rowAvg(y){
+      var d=g.getImageData(0,y,W,1).data,r=0,v=0,b=0;
+      for(var i=0;i<W;i++){r+=d[i*4];v+=d[i*4+1];b+=d[i*4+2];}
+      return [Math.round(r/W),Math.round(v/W),Math.round(b/W)];
+    }
+    var top=rowAvg(Math.round(H*0.08)),bot=rowAvg(Math.round(H*0.92));
+    var band=H*0.08;
+    var g1=g.createLinearGradient(0,0,0,band);
+    g1.addColorStop(0,"rgba("+top[0]+","+top[1]+","+top[2]+",1)");
+    g1.addColorStop(1,"rgba("+top[0]+","+top[1]+","+top[2]+",0)");
+    g.fillStyle=g1;g.fillRect(0,0,W,band);
+    var g2=g.createLinearGradient(0,H-band,0,H);
+    g2.addColorStop(0,"rgba("+bot[0]+","+bot[1]+","+bot[2]+",0)");
+    g2.addColorStop(1,"rgba("+bot[0]+","+bot[1]+","+bot[2]+",1)");
+    g.fillStyle=g2;g.fillRect(0,H-band,W,band);
+  })();
+  var t=new THREE.CanvasTexture(c);
+  t.anisotropy=8;
+  t.encoding=THREE.sRGBEncoding;
+  return t;
+}
+
+/* texture bump grossière (relief) à partir de bruit */
+function bumpTexture(){
+  var W=512,H=256;
+  var n=makeNoise(W,H,5);
+  var c=texFromField(W,H,function(u,v,x,y){
+    var g=n[y*W+x]*255;
+    return [g,g,g];
+  });
+  return new THREE.CanvasTexture(c);
+}
+
+/* nuages terrestres (alpha) */
+function cloudTexture(){
+  var W=1024,H=512;
+  var n=makeNoise(W,H,6);
+  var c=mkCanvas(W,H),g=c.getContext("2d");
+  var img=g.createImageData(W,H),d=img.data;
+  for(var y=0;y<H;y++)for(var x=0;x<W;x++){
+    var v=n[y*W+x];
+    var a=v>0.55?(v-0.55)/0.45*230:0;
+    var i=(y*W+x)*4;
+    d[i]=255;d[i+1]=255;d[i+2]=255;d[i+3]=a;
+  }
+  g.putImageData(img,0,0);
+  return new THREE.CanvasTexture(c);
+}
+
+/* texture solaire : granulation + taches */
+function sunTexture(){
+  var W=1024,H=512;
+  var n1=makeNoise(W,H,6),n2=makeNoise(W,H,3);
+  var c=texFromField(W,H,function(u,v,x,y){
+    var g=n1[y*W+x]*0.7+n2[y*W+x]*0.3;
+    g=Math.pow(g,1.1);
+    return ramp([[0,[190,80,10]],[0.35,[240,140,20]],[0.6,[255,190,60]],[0.85,[255,228,130]],[1,[255,250,210]]],g);
+  });
+  var g=c.getContext("2d");
+  /* granulation convective : milliers de cellules brillantes cerclées de sombre */
+  for(var gi=0;gi<2600;gi++){
+    var gx=Math.random()*W,gy=Math.random()*H;
+    var gr2=0.8+Math.random()*2.8;
+    g.globalAlpha=0.16;g.fillStyle="#ffeaa8";
+    g.beginPath();g.arc(gx,gy,gr2,0,7);g.fill();
+    g.globalAlpha=0.13;g.strokeStyle="#a34d08";g.lineWidth=0.8;
+    g.beginPath();g.arc(gx,gy,gr2,0,7);g.stroke();
+    g.globalAlpha=1;
+  }
+  /* filaments magnétiques clairs */
+  for(gi=0;gi<40;gi++){
+    var fy=Math.random()*H,fx=Math.random()*W;
+    g.globalAlpha=0.1;g.strokeStyle="#fff3c8";g.lineWidth=1.2;
+    g.beginPath();g.moveTo(fx,fy);
+    g.bezierCurveTo(fx+30,fy-8,fx+60,fy+8,fx+100,fy);g.stroke();
+    g.globalAlpha=1;
+  }
+  for(var i=0;i<7;i++){
+    var sx=Math.random()*W,sy=H*(0.25+Math.random()*0.5),sr=4+Math.random()*10;
+    var rg=g.createRadialGradient(sx,sy,0,sx,sy,sr);
+    rg.addColorStop(0,"rgba(60,20,4,0.9)");
+    rg.addColorStop(0.5,"rgba(120,50,8,0.6)");
+    rg.addColorStop(1,"rgba(120,50,8,0)");
+    g.fillStyle=rg;g.beginPath();g.arc(sx,sy,sr,0,7);g.fill();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+/* sprite doux radial pour halos */
+function glowSprite(col1,col2){
+  var c=mkCanvas(256,256),g=c.getContext("2d");
+  var rg=g.createRadialGradient(128,128,0,128,128,128);
+  rg.addColorStop(0,col1);
+  rg.addColorStop(0.4,col2);
+  rg.addColorStop(1,"rgba(0,0,0,0)");
+  g.fillStyle=rg;g.fillRect(0,0,256,256);
+  return new THREE.CanvasTexture(c);
+}
+
+/* ================= SCÈNE ================= */
+
+var canvas=document.getElementById("gl");
+var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.18;
+var scene=new THREE.Scene();
+var camera=new THREE.PerspectiveCamera(55,1,0.5,20000);
+
+var sunLight=new THREE.PointLight(0xfff2dc,1.7,0,2);
+scene.add(sunLight);
+/* faces nocturnes lisibles : ambiance nettement relevée */
+scene.add(new THREE.AmbientLight(0x54636f,1.6));
+scene.add(new THREE.HemisphereLight(0x33414f,0x1a2028,0.5));
+
+/* --- étoiles de fond + voie lactée --- */
+(function(){
+  var N=2600,pos=new Float32Array(N*3),col=new Float32Array(N*3);
+  for(var i=0;i<N;i++){
+    var band=i>N*0.45; /* concentration en bande galactique */
+    var u=Math.random()*2-1,th=Math.random()*Math.PI*2;
+    if(band){u=(Math.random()*2-1)*0.22;} /* proche du plan incliné */
+    var r=6000;
+    var x=r*Math.sqrt(1-u*u)*Math.cos(th),
+        y=r*u,
+        z=r*Math.sqrt(1-u*u)*Math.sin(th);
+    /* incliner la bande */
+    var ang=0.9;
+    var y2=y*Math.cos(ang)-z*Math.sin(ang),
+        z2=y*Math.sin(ang)+z*Math.cos(ang);
+    pos[i*3]=x;pos[i*3+1]=y2;pos[i*3+2]=z2;
+    var w=0.55+Math.random()*0.45;
+    var tint=Math.random();
+    col[i*3]=w*(tint<0.15?1:0.85);
+    col[i*3+1]=w*0.92;
+    col[i*3+2]=w*(tint>0.8?1:0.95);
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+  geo.setAttribute("color",new THREE.BufferAttribute(col,3));
+  var mat=new THREE.PointsMaterial({size:7,vertexColors:true,sizeAttenuation:false,transparent:true,opacity:0.9});
+  mat.size=1.6;
+  scene.add(new THREE.Points(geo,mat));
+
+  /* halos nébuleux discrets */
+  var neb1=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:glowSprite("rgba(60,90,160,0.28)","rgba(30,50,110,0.12)"),
+    transparent:true,depthWrite:false}));
+  neb1.position.set(-3800,900,-3200);neb1.scale.set(4200,2400,1);
+  scene.add(neb1);
+  var neb2=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:glowSprite("rgba(120,70,140,0.2)","rgba(60,30,90,0.08)"),
+    transparent:true,depthWrite:false}));
+  neb2.position.set(3400,-600,2600);neb2.scale.set(3600,2000,1);
+  scene.add(neb2);
+})();
+
+/* --- soleil --- */
+var sunGroup=new THREE.Group();
+var sunMesh=new THREE.Mesh(
+  new THREE.SphereGeometry(30,64,48),
+  new THREE.MeshBasicMaterial({map:sunTexture()})
+);
+sunGroup.add(sunMesh);
+var sunGlow1=new THREE.Sprite(new THREE.SpriteMaterial({
+  map:glowSprite("rgba(255,240,200,0.95)","rgba(255,170,60,0.45)"),
+  transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+sunGlow1.scale.set(130,130,1);
+sunGroup.add(sunGlow1);
+var sunGlow2=new THREE.Sprite(new THREE.SpriteMaterial({
+  map:glowSprite("rgba(255,190,90,0.5)","rgba(255,140,40,0.15)"),
+  transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+sunGlow2.scale.set(300,300,1);
+sunGroup.add(sunGlow2);
+scene.add(sunGroup);
+
+/* --- protubérances filamentaires : faisceaux de tubes le long
+       de courbes irrégulières ancrées à la surface (aucune forme simple) --- */
+var promGroups=[];
+(function(){
+  function surfDir(){
+    var u=Math.random()*6.283,v=Math.acos(2*Math.random()-1);
+    return new THREE.Vector3(
+      Math.sin(v)*Math.cos(u),Math.cos(v),Math.sin(v)*Math.sin(u));
+  }
+  function jitter(v,amt){
+    return v.clone().add(new THREE.Vector3(
+      (Math.random()-0.5)*amt,(Math.random()-0.5)*amt,
+      (Math.random()-0.5)*amt)).normalize();
+  }
+  var cols=[0xff8838,0xffa24a,0xff6a26,0xffc06a];
+  for(var i=0;i<7;i++){
+    var d0=surfDir();
+    var axis=new THREE.Vector3().crossVectors(d0,surfDir()).normalize();
+    var sep=0.16+Math.random()*0.28;
+    var d1=d0.clone().applyAxisAngle(axis,sep);
+    var mid=d0.clone().add(d1).normalize();
+    var lift=1.04+Math.random()*0.11;
+    var grp=new THREE.Group();
+    /* 4 filaments légèrement décalés = aspect fibreux */
+    for(var f=0;f<4;f++){
+      var p0=jitter(d0,0.05).multiplyScalar(29.6);
+      var p4=jitter(d1,0.05).multiplyScalar(29.6);
+      var pm=jitter(mid,0.05).multiplyScalar(30*(lift+(Math.random()-0.5)*0.05));
+      var pa=jitter(d0.clone().lerp(mid,0.45).normalize(),0.06)
+             .multiplyScalar(30*(1+(lift-1)*0.72));
+      var pb=jitter(d1.clone().lerp(mid,0.45).normalize(),0.06)
+             .multiplyScalar(30*(1+(lift-1)*0.72));
+      var curve=new THREE.CatmullRomCurve3([p0,pa,pm,pb,p4]);
+      var tube=new THREE.TubeGeometry(curve,42,0.04+Math.random()*0.09,5,false);
+      var mat=new THREE.MeshBasicMaterial({
+        color:cols[f%4],transparent:true,
+        opacity:0.35+Math.random()*0.3,
+        blending:THREE.AdditiveBlending,depthWrite:false});
+      grp.add(new THREE.Mesh(tube,mat));
+    }
+    grp.userData={ph:Math.random()*6.28,sp:0.3+Math.random()*0.5};
+    sunGroup.add(grp);
+    promGroups.push(grp);
+  }
+})();
+
+/* --- frange bouillonnante : volutes douces irrégulières collées à la surface --- */
+var wisps=[];
+(function(){
+  var wc=mkCanvas(128,128),wg=wc.getContext("2d");
+  for(var b=0;b<7;b++){
+    var bx=34+Math.random()*60,by=34+Math.random()*60,br=12+Math.random()*24;
+    var rg=wg.createRadialGradient(bx,by,0,bx,by,br);
+    rg.addColorStop(0,"rgba(255,190,110,0.45)");
+    rg.addColorStop(0.6,"rgba(255,130,50,0.16)");
+    rg.addColorStop(1,"rgba(255,120,40,0)");
+    wg.fillStyle=rg;wg.beginPath();wg.arc(bx,by,br,0,7);wg.fill();
+  }
+  var wtex=new THREE.CanvasTexture(wc);
+  for(var i=0;i<26;i++){
+    var s=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:wtex,transparent:true,opacity:0.4,
+      blending:THREE.AdditiveBlending,depthWrite:false,
+      rotation:Math.random()*6.28}));
+    var u=Math.random()*6.283,v=Math.acos(2*Math.random()-1);
+    var dir=new THREE.Vector3(
+      Math.sin(v)*Math.cos(u),Math.cos(v),Math.sin(v)*Math.sin(u));
+    s.position.copy(dir).multiplyScalar(30.1+Math.random()*0.7);
+    var sc=1.8+Math.random()*2.8;
+    s.scale.set(sc,sc,1);
+    s.userData={ph:Math.random()*6.28,sp:0.6+Math.random()*1.2,base:sc};
+    sunGroup.add(s);
+    wisps.push(s);
+  }
+})();
+
+/* --- couronne : voiles de rayons très atténués, en contre-rotation lente --- */
+var coronaA,coronaB;
+(function(){
+  function rayTexture(nRays,len){
+    var c2=mkCanvas(512,512),g2=c2.getContext("2d");
+    g2.translate(256,256);
+    for(var i=0;i<nRays;i++){
+      var a=i/nRays*Math.PI*2+Math.random()*0.08;
+      var L=len*(0.4+Math.random()*0.6);
+      var grd=g2.createLinearGradient(0,0,Math.cos(a)*L,Math.sin(a)*L);
+      grd.addColorStop(0,"rgba(255,200,110,0.11)");
+      grd.addColorStop(0.5,"rgba(255,160,60,0.04)");
+      grd.addColorStop(1,"rgba(255,140,40,0)");
+      g2.strokeStyle=grd;
+      g2.lineWidth=0.6+Math.random()*1.4;
+      g2.beginPath();g2.moveTo(0,0);
+      g2.lineTo(Math.cos(a)*L,Math.sin(a)*L);
+      g2.stroke();
+    }
+    return new THREE.CanvasTexture(c2);
+  }
+  coronaA=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:rayTexture(80,250),transparent:true,opacity:0.3,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+  coronaA.scale.set(185,185,1);
+  sunGroup.add(coronaA);
+  coronaB=new THREE.Sprite(new THREE.SpriteMaterial({
+    map:rayTexture(55,250),transparent:true,opacity:0.18,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+  coronaB.scale.set(255,255,1);
+  sunGroup.add(coronaB);
+})();
+
+/* --- orbites --- */
+planetsData.forEach(function(pd){
+  var g=new THREE.BufferGeometry().setFromPoints(pd.path);
+  var m=new THREE.LineBasicMaterial({color:0x57d3ff,transparent:true,opacity:0.16});
+  scene.add(new THREE.Line(g,m));
+});
+
+/* --- planètes --- */
+var planetMeshes=[];
+planetsData.forEach(function(pd){
+  var group=new THREE.Group();
+  group.position.copy(pd.pos);
+
+  var mat=new THREE.MeshPhongMaterial({
+    map:planetTexture(pd.idx),
+    bumpMap:(pd.idx<=3)?bumpTexture():null,
+    bumpScale:pd.idx<=3?0.25:0,
+    shininess:pd.idx===2?28:6,
+    specular:pd.idx===2?0x334f66:0x111111
+  });
+  var mesh=new THREE.Mesh(new THREE.SphereGeometry(pd.r,96,64),mat);
+  mesh.rotation.z=[0.001,3.1,0.41,0.44,0.05,0.47,1.71,0.49][pd.idx]; /* obliquités */
+  /* aplatissement polaire réel (NASA fact sheets) */
+  var FLAT=[0.0006,0.0,0.00335,0.00589,0.06487,0.09796,0.02293,0.01708];
+  mesh.scale.y=1-FLAT[pd.idx];
+  group.add(mesh);
+  pd.mesh=mesh;
+
+  /* nuages terrestres */
+  if(pd.idx===2){
+    var clouds=new THREE.Mesh(
+      new THREE.SphereGeometry(pd.r*1.03,48,36),
+      new THREE.MeshPhongMaterial({map:cloudTexture(),transparent:true,opacity:0.85,depthWrite:false})
+    );
+    group.add(clouds);
+    pd.clouds=clouds;
+    /* fine atmosphère */
+    var atm=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:glowSprite("rgba(110,180,255,0.0)","rgba(110,180,255,0.28)"),
+      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+    atm.scale.set(pd.r*3.4,pd.r*3.4,1);
+    group.add(atm);
+  }
+  /* halo vénusien */
+  if(pd.idx===1){
+    var vat=new THREE.Sprite(new THREE.SpriteMaterial({
+      map:glowSprite("rgba(255,230,180,0.0)","rgba(255,220,160,0.22)"),
+      transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+    vat.scale.set(pd.r*3.2,pd.r*3.2,1);
+    group.add(vat);
+  }
+
+  /* anneaux de Saturne */
+  if(pd.idx===5){
+    /* proportions réelles : C 1,24–1,53 R · B 1,53–1,95 R ·
+       division de Cassini 1,95–2,02 R · A 2,02–2,27 R (lacune d'Encke à 2,21 R) */
+    var inner=pd.r*1.24,outer=pd.r*2.27;
+    var ringGeo=new THREE.RingGeometry(inner,outer,128,1);
+    var posAttr=ringGeo.attributes.position,uvAttr=ringGeo.attributes.uv;
+    for(var i=0;i<posAttr.count;i++){
+      var vx=posAttr.getX(i),vy=posAttr.getY(i);
+      var rr=Math.sqrt(vx*vx+vy*vy);
+      uvAttr.setXY(i,(rr-inner)/(outer-inner),0.5);
+    }
+    var rc=mkCanvas(256,1);var rg2=rc.getContext("2d");
+    var strip=[
+      [0,0],[0.02,0.08],[0.15,0.13],[0.27,0.16],      /* anneau C, ténu */
+      [0.29,0.5],[0.45,0.82],[0.60,0.88],[0.68,0.72], /* anneau B, dense */
+      [0.69,0.10],[0.75,0.08],                        /* division de Cassini */
+      [0.76,0.52],[0.88,0.55],[0.935,0.5],            /* anneau A */
+      [0.94,0.10],[0.95,0.45],                        /* lacune d'Encke */
+      [0.985,0.4],[1,0]];
+    for(var s=0;s<255;s++){
+      var t=s/255,al=0;
+      for(var q=0;q<strip.length-1;q++){
+        if(t<=strip[q+1][0]){
+          var tt2=(t-strip[q][0])/(strip[q+1][0]-strip[q][0]);
+          al=strip[q][1]+(strip[q+1][1]-strip[q][1])*tt2;break;
+        }
+      }
+      rg2.fillStyle="rgba("+(204+Math.sin(t*38)*6)+","+(190+Math.sin(t*31)*5)+
+                    ","+(166+Math.sin(t*26)*4)+","+al+")";
+      rg2.fillRect(s,0,1,1);
+    }
+    var ringTex=new THREE.CanvasTexture(rc);
+    var ring=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({
+      map:ringTex,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+    ring.rotation.x=Math.PI/2-0.47;
+    group.add(ring);
+  }
+  if(pd.idx===6){
+    /* anneaux d'Uranus : étroits et sombres (epsilon + anneau interne),
+       quasi perpendiculaires à l'écliptique (bascule à 98°) */
+    var urE=new THREE.Mesh(
+      new THREE.RingGeometry(pd.r*1.95,pd.r*2.01,96),
+      new THREE.MeshBasicMaterial({color:0x46505a,transparent:true,
+        opacity:0.55,side:THREE.DoubleSide,depthWrite:false}));
+    urE.rotation.x=Math.PI/2-1.71;
+    group.add(urE);
+    var urI=new THREE.Mesh(
+      new THREE.RingGeometry(pd.r*1.63,pd.r*1.66,96),
+      new THREE.MeshBasicMaterial({color:0x3a434c,transparent:true,
+        opacity:0.3,side:THREE.DoubleSide,depthWrite:false}));
+    urI.rotation.x=Math.PI/2-1.71;
+    group.add(urI);
+  }
+
+  scene.add(group);
+  pd.group=group;
+  planetMeshes.push(pd);
+});
+
+/* --- astéroïdes : rochers 3D irréguliers instanciés --- */
+function hash3(x,y,z){
+  var d=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;
+  return d-Math.floor(d);
+}
+/* icosaèdre déformé de façon déterministe (pas de fissures entre faces) */
+function makeRock(variant){
+  var g=new THREE.IcosahedronGeometry(1,1);
+  var pos=g.attributes.position;
+  for(var i=0;i<pos.count;i++){
+    var x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+    var kx=Math.round(x*100),ky=Math.round(y*100),kz=Math.round(z*100);
+    var h1=hash3(kx+variant*17,ky,kz);
+    var h2=hash3(kx,ky+variant*31,kz);
+    var f=0.68+h1*0.62;                 /* bosses et creux */
+    var pinch=1-(h2-0.5)*0.25;          /* asymétrie douce */
+    pos.setXYZ(i,x*f,y*f*pinch,z*f);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+function gaussish(){return (Math.random()+Math.random()+Math.random()-1.5)/1.5;}
+function makeBelt(opts){
+  var euler=new THREE.Euler(),quat=new THREE.Quaternion(),
+      p=new THREE.Vector3(),s=new THREE.Vector3(),m=new THREE.Matrix4();
+  var range=opts.rMax-opts.rMin;
+  /* ondulation globale de l'anneau : plus un cercle parfait */
+  var ph1=Math.random()*6.28,ph2=Math.random()*6.28,ph3=Math.random()*6.28;
+  var w1=range*0.28,w2=range*0.14;
+  /* excentricité légère : centre décalé */
+  var ecc=range*0.25,eccA=Math.random()*6.28;
+  var cxOff=Math.cos(eccA)*ecc,czOff=Math.sin(eccA)*ecc;
+  /* familles d'astéroïdes : amas concentrés */
+  var clumps=[];
+  for(var ci=0;ci<opts.clumps;ci++){
+    clumps.push({
+      a:Math.random()*Math.PI*2,
+      r:opts.rMin+Math.random()*range,
+      spread:0.15+Math.random()*0.35
+    });
+  }
+  for(var v=0;v<opts.variants;v++){
+    var geo=makeRock(v+opts.seed);
+    var mat=new THREE.MeshPhongMaterial({
+      color:opts.colors[v%opts.colors.length],
+      flatShading:true,shininess:4
+    });
+    var im=new THREE.InstancedMesh(geo,mat,opts.count);
+    for(var i=0;i<opts.count;i++){
+      var a,r;
+      if(Math.random()<0.35){ /* membre d'une famille */
+        var cl=clumps[Math.floor(Math.random()*clumps.length)];
+        a=cl.a+gaussish()*cl.spread;
+        r=cl.r+gaussish()*range*0.12;
+      }else{
+        a=Math.random()*Math.PI*2;
+        r=opts.rMin+Math.random()*range;
+      }
+      /* ondulation + excentricité */
+      r+=Math.sin(a*2+ph1)*w1+Math.sin(a*5+ph2)*w2;
+      p.set(Math.cos(a)*r+cxOff,
+            (Math.random()-0.5)*opts.thick*(1+0.6*Math.sin(a*3+ph3)),
+            Math.sin(a)*r+czOff);
+      euler.set(Math.random()*6.28,Math.random()*6.28,Math.random()*6.28);
+      quat.setFromEuler(euler);
+      var base=opts.sMin+Math.pow(Math.random(),2.2)*(opts.sMax-opts.sMin);
+      s.set(base*(0.7+Math.random()*0.6),
+            base*(0.6+Math.random()*0.6),
+            base*(0.7+Math.random()*0.6));
+      m.compose(p,quat,s);
+      im.setMatrixAt(i,m);
+    }
+    im.instanceMatrix.needsUpdate=true;
+    scene.add(im);
+  }
+}
+/* ceinture principale (Mars–Jupiter) : poussière de rochers sombres, discrète */
+makeBelt({variants:3,seed:0,count:1700,rMin:203,rMax:245,thick:6,clumps:7,
+  sMin:0.05,sMax:0.32,colors:[0x6b655c,0x57524a,0x7a736a]});
+/* ceinture de Kuiper (au-delà de Neptune) : corps glacés gris-bleu */
+makeBelt({variants:2,seed:7,count:1500,rMin:495,rMax:600,thick:18,clumps:5,
+  sMin:0.1,sMax:0.55,colors:[0x5f7280,0x71838f]});
+
+/* ================= CAMÉRA ORBITALE ================= */
+
+var cam={
+  tx:0,tz:0,          /* cible sur le plan */
+  dist:900,           /* distance */
+  theta:0,            /* azimut */
+  phi:0.35            /* inclinaison (0 = zénith) */
+};
+var MIN_DIST=5, MAX_DIST=1500, FIT_DIST=1000;
+var MIN_PHI=0.02, MAX_PHI=1.35;
+
+function applyCam(){
+  var sp=Math.sin(cam.phi),cp=Math.cos(cam.phi);
+  var st=Math.sin(cam.theta),ct=Math.cos(cam.theta);
+  camera.position.set(
+    cam.tx+cam.dist*sp*st,
+    cam.dist*cp,
+    cam.tz+cam.dist*sp*ct
+  );
+  camera.lookAt(cam.tx,0,cam.tz);
+}
+
+var camAnim=null;
+function animateCam(tx,tz,dist,phi,theta){
+  camAnim={t:0,
+    x0:cam.tx,z0:cam.tz,d0:cam.dist,p0:cam.phi,th0:cam.theta,
+    x1:tx,z1:tz,d1:dist,p1:phi,th1:theta};
+}
+function stepCamAnim(){
+  camAnim.t+=0.06;
+  var t=camAnim.t>1?1:camAnim.t;
+  var e=1-Math.pow(1-t,3);
+  cam.tx=camAnim.x0+(camAnim.x1-camAnim.x0)*e;
+  cam.tz=camAnim.z0+(camAnim.z1-camAnim.z0)*e;
+  cam.dist=camAnim.d0+(camAnim.d1-camAnim.d0)*e;
+  cam.phi=camAnim.p0+(camAnim.p1-camAnim.p0)*e;
+  cam.theta=camAnim.th0+(camAnim.th1-camAnim.th0)*e;
+  if(t>=1)camAnim=null;
+}
+
+function resize(){
+  var w=window.innerWidth,h=window.innerHeight;
+  renderer.setSize(w,h); /* met aussi à jour le style CSS : centre de rendu = centre écran */
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
+  /* zoom max : Mercure (r=2.2) plein écran */
+  MIN_DIST=2.2/Math.tan(camera.fov*DEG/2)*1.15;
+  FIT_DIST=620/Math.tan(camera.fov*DEG/2)/Math.min(1,camera.aspect);
+  MAX_DIST=FIT_DIST*1.15;
+  if(cam.dist>MAX_DIST)cam.dist=MAX_DIST;
+}
+window.addEventListener("resize",resize);
+
+/* ================= GESTES ================= */
+
+var pointers={};
+var prevTwo=null;
+var startTwo=null;
+var gestureMode=null;
+var dragDist=0;
+var multiTouch=false;
+var tap=null;            /* candidat tap en cours */
+var lastTapHandled=0;    /* pour dédupliquer pointerup + click */
+
+function pCount(){var n=0;for(var k in pointers)n++;return n;}
+function twoState(){
+  var ids=[];for(var k in pointers)ids.push(k);
+  var a=pointers[ids[0]],b=pointers[ids[1]];
+  return {
+    mx:(a.x+b.x)/2,my:(a.y+b.y)/2,
+    d:Math.hypot(a.x-b.x,a.y-b.y),
+    ang:Math.atan2(b.y-a.y,b.x-a.x)
+  };
+}
+function resetTwo(){prevTwo=null;startTwo=null;gestureMode=null;}
+
+canvas.addEventListener("pointerdown",function(ev){
+  try{canvas.setPointerCapture(ev.pointerId);}catch(e){}
+  pointers[ev.pointerId]={x:ev.clientX,y:ev.clientY};
+  camAnim=null;
+  if(pCount()>2){
+    pointers={};
+    pointers[ev.pointerId]={x:ev.clientX,y:ev.clientY};
+  }
+  if(pCount()===1){
+    dragDist=0;multiTouch=false;
+    tap={x:ev.clientX,y:ev.clientY,t:Date.now()};
+    resetTwo();
+  }else if(pCount()===2){
+    multiTouch=true;
+    tap=null;
+    prevTwo=twoState();
+    startTwo=prevTwo;
+    gestureMode=null;
+  }
+});
+
+canvas.addEventListener("pointermove",function(ev){
+  var pt=pointers[ev.pointerId];
+  if(!pt)return;
+
+  if(pCount()===1){
+    var dx=ev.clientX-pt.x, dy=ev.clientY-pt.y;
+    dragDist+=Math.hypot(dx,dy);
+    if(tap && Math.hypot(ev.clientX-tap.x,ev.clientY-tap.y)>10)tap=null;
+    /* pan : le contenu suit le doigt */
+    var wpp=2*cam.dist*Math.tan(camera.fov*DEG/2)/window.innerHeight;
+    var st=Math.sin(cam.theta),ct=Math.cos(cam.theta);
+    cam.tx-=( ct*dx + st*dy)*wpp;
+    cam.tz-=(-st*dx + ct*dy)*wpp;
+    pt.x=ev.clientX;pt.y=ev.clientY;
+  }else if(pCount()===2){
+    pt.x=ev.clientX;pt.y=ev.clientY;
+    dragDist+=4;
+    var cur=twoState();
+    if(!prevTwo||!startTwo){prevTwo=cur;startTwo=cur;return;}
+
+    /* détermination du geste dominant — verrouillé jusqu'au relâchement */
+    if(!gestureMode){
+      var zoomAmt = startTwo.d>0 ? Math.abs(cur.d-startTwo.d)/startTwo.d : 0;
+      var rotAmt  = Math.abs((function(a){
+        if(a>Math.PI)a-=2*Math.PI;if(a<-Math.PI)a+=2*Math.PI;return a;
+      })(cur.ang-startTwo.ang));
+      var tiltAmt = Math.abs(cur.my-startTwo.my);
+      if(zoomAmt>0.12)      gestureMode="zoom";
+      else if(rotAmt>0.14)  gestureMode="rotate";
+      else if(tiltAmt>32)   gestureMode="tilt";
+    }
+
+    if(gestureMode==="zoom" && prevTwo.d>0 && cur.d>0){
+      /* zoom centré sur le centre de la vue en cours (la cible caméra) */
+      cam.dist*=Math.pow(prevTwo.d/cur.d,0.7);
+      cam.dist=Math.max(MIN_DIST,Math.min(MAX_DIST,cam.dist));
+    }else if(gestureMode==="rotate"){
+      var dAng=cur.ang-prevTwo.ang;
+      if(dAng>Math.PI)dAng-=2*Math.PI;
+      if(dAng<-Math.PI)dAng+=2*Math.PI;
+      dAng*=0.55;
+      /* rotation autour du Soleil (origine) : la cible caméra orbite avec la vue */
+      var rc=Math.cos(dAng),rs=Math.sin(dAng);
+      var ntx=cam.tx*rc+cam.tz*rs,
+          ntz=cam.tz*rc-cam.tx*rs;
+      cam.tx=ntx;cam.tz=ntz;
+      cam.theta+=dAng;
+    }else if(gestureMode==="tilt"){
+      cam.phi+=(cur.my-prevTwo.my)*0.0022;
+      cam.phi=Math.max(MIN_PHI,Math.min(MAX_PHI,cam.phi));
+    }
+    prevTwo=cur;
+  }
+});
+
+function endPointer(ev){
+  delete pointers[ev.pointerId];
+  if(pCount()<2)resetTwo();
+  /* déclenchement principal de la sélection : pointerup arrive toujours,
+     contrairement au click qui peut être avalé sur certains mobiles */
+  if(tap && !multiTouch && Date.now()-tap.t<500){
+    lastTapHandled=Date.now();
+    handleTap(tap.x,tap.y);
+  }
+  tap=null;
+}
+canvas.addEventListener("pointerup",endPointer);
+canvas.addEventListener("pointercancel",function(ev){
+  delete pointers[ev.pointerId];
+  if(pCount()<2)resetTwo();
+  tap=null;
+});
+canvas.addEventListener("lostpointercapture",function(ev){
+  delete pointers[ev.pointerId];
+  if(pCount()<2)resetTwo();
+});
+
+/* secours : si pointerup n'a pas traité le tap (navigateur exotique),
+   le click natif prend le relais — dédupliqué pour ne pas doubler */
+canvas.addEventListener("click",function(ev){
+  if(Date.now()-lastTapHandled<600)return;
+  if(multiTouch || dragDist>10)return;
+  handleTap(ev.clientX,ev.clientY);
+});
+
+canvas.addEventListener("wheel",function(ev){
+  ev.preventDefault();
+  cam.dist*=Math.exp(ev.deltaY*0.0013);
+  cam.dist=Math.max(MIN_DIST,Math.min(MAX_DIST,cam.dist));
+},{passive:false});
+
+/* clic droit + drag = rotation/inclinaison souris (confort desktop) */
+var rmb=false,rx=0,ry=0;
+canvas.addEventListener("contextmenu",function(e){e.preventDefault();});
+canvas.addEventListener("mousedown",function(e){
+  if(e.button===2){rmb=true;rx=e.clientX;ry=e.clientY;}
+});
+window.addEventListener("mousemove",function(e){
+  if(rmb){
+    cam.theta+=(e.clientX-rx)*0.005;
+    cam.phi=Math.max(MIN_PHI,Math.min(MAX_PHI,cam.phi+(e.clientY-ry)*0.004));
+    rx=e.clientX;ry=e.clientY;
+  }
+});
+window.addEventListener("mouseup",function(){rmb=false;});
+
+/* ================= TAP → PLANÈTE ================= */
+
+var projV=new THREE.Vector3();
+var raycaster=new THREE.Raycaster();
+var ndc=new THREE.Vector2();
+
+/* sphères de détection invisibles, plus larges que les planètes */
+var hitMeshes=[];
+planetMeshes.forEach(function(pd){
+  var hm=new THREE.Mesh(
+    new THREE.SphereGeometry(Math.max(pd.r*1.3,pd.r+2),12,10),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})
+  );
+  pd.group.add(hm);
+  hm.userData.pd=pd;
+  hitMeshes.push(hm);
+});
+
+function screenPos(v3){
+  projV.copy(v3).project(camera);
+  return {
+    x:(projV.x*0.5+0.5)*window.innerWidth,
+    y:(-projV.y*0.5+0.5)*window.innerHeight,
+    z:projV.z
+  };
+}
+
+function handleTap(sx,sy){
+  /* 1) raycast : gère le zoom rapproché (tap n'importe où sur le disque
+     de la planète, même si son centre est hors champ) */
+  ndc.x=(sx/window.innerWidth)*2-1;
+  ndc.y=-(sy/window.innerHeight)*2+1;
+  raycaster.setFromCamera(ndc,camera);
+  var hits=raycaster.intersectObjects(hitMeshes,false);
+  if(hits.length>0){
+    openSelector(hits[0].object.userData.pd);
+    return;
+  }
+  /* 2) repli écran : gère la sélection de loin (planètes minuscules),
+     avec une zone tactile généreuse */
+  var best=null,bestD=1e9;
+  for(var i=0;i<planetMeshes.length;i++){
+    var pd=planetMeshes[i];
+    var sp=screenPos(pd.group.position);
+    if(sp.z>1)continue;
+    var camD=camera.position.distanceTo(pd.group.position);
+    var pr=pd.r/(camD*Math.tan(camera.fov*DEG/2))*(window.innerHeight/2);
+    var hitR=Math.max(pr+16,42);
+    var d=Math.hypot(sp.x-sx,sp.y-sy);
+    if(d<hitR && d<bestD){best=pd;bestD=d;}
+  }
+  if(best)openSelector(best);
+  else closeSelector();
+}
+
+/* ================= SÉLECTEUR ================= */
+
+var selEl=document.getElementById("selector"),
+    selName=document.getElementById("selName"),
+    greekRow=document.getElementById("greekRow");
+
+function openSelector(pd){
+  /* recentrage de la vue sur la planète, sans changer le niveau de zoom */
+  animateCam(pd.group.position.x,pd.group.position.z,cam.dist,cam.phi,cam.theta);
+
+  selName.textContent=pd.name;
+  greekRow.innerHTML="";
+  for(var i=0;i<GREEK.length;i++){
+    (function(g){
+      var b=document.createElement("button");
+      b.className="gbtn";
+      b.textContent=g;
+      var owner=assign[g];
+      if(owner===pd.name){
+        b.className+=" mine";
+        b.onclick=function(){delete assign[g];refreshUI();openSelector(pd);};
+      }else if(owner){
+        b.className+=" used";
+      }else{
+        b.onclick=function(){
+          for(var k in assign){if(assign[k]===pd.name)delete assign[k];}
+          assign[g]=pd.name;
+          refreshUI();
+          closeSelector();
+        };
+      }
+      greekRow.appendChild(b);
+    })(GREEK[i]);
+  }
+  selEl.className="open";
+}
+function closeSelector(){
+  selEl.className="";
+}
+document.getElementById("selClose").onclick=closeSelector;
+
+/* ================= PANNEAU ÉNONCÉS ================= */
+
+var sheet=document.getElementById("sheet"),
+    enoncesDiv=document.getElementById("enonces");
+
+(function(){
+  for(var i=0;i<ENONCES.length;i++){
+    (function(e){
+      var d=document.createElement("div");
+      d.className="enonce";
+      d.id="en-"+e.g;
+      d.innerHTML=
+        '<div class="greek">'+e.g+'</div>'+
+        '<div class="body"><div class="txt">'+e.txt+'</div>'+
+        '<div class="assign"><span class="chip"></span>'+
+        '<button class="unassign">RETIRER</button></div></div>';
+      d.querySelector(".unassign").onclick=function(){
+        delete assign[e.g];refreshUI();
+      };
+      enoncesDiv.appendChild(d);
+    })(ENONCES[i]);
+  }
+})();
+
+function refreshUI(){
+  for(var i=0;i<ENONCES.length;i++){
+    var e=ENONCES[i],d=document.getElementById("en-"+e.g);
+    if(assign[e.g]){
+      d.className="enonce assigned";
+      d.querySelector(".chip").textContent=assign[e.g].toUpperCase();
+    }else{
+      d.className="enonce";
+    }
+  }
+}
+
+document.getElementById("tabEnonces").onclick=function(){sheet.className="open";};
+document.getElementById("sheetClose").onclick=function(){sheet.className="";};
+
+/* ================= BADGES (lettres grecques à l'écran) ================= */
+
+var badgesDiv=document.getElementById("badges");
+var badgeEls={};
+
+function updateBadges(){
+  var seen={};
+  for(var g in assign){
+    var name=assign[g];
+    var pd=null;
+    for(var i=0;i<planetMeshes.length;i++)if(planetMeshes[i].name===name)pd=planetMeshes[i];
+    if(!pd)continue;
+    var sp=screenPos(pd.group.position);
+    if(sp.z>1){if(badgeEls[g])badgeEls[g].style.display="none";continue;}
+    var camD=camera.position.distanceTo(pd.group.position);
+    var pr=pd.r/(camD*Math.tan(camera.fov*DEG/2))*(window.innerHeight/2);
+    if(!badgeEls[g]){
+      var el=document.createElement("div");
+      el.className="badge";el.textContent=g;
+      badgesDiv.appendChild(el);
+      badgeEls[g]=el;
+    }
+    var el2=badgeEls[g];
+    el2.style.display="flex";
+    el2.style.left=(sp.x+Math.max(pr,12)*0.8+12)+"px";
+    el2.style.top=(sp.y-Math.max(pr,12)*0.8-12)+"px";
+    seen[g]=true;
+  }
+  for(var g2 in badgeEls){
+    if(!seen[g2])badgeEls[g2].style.display="none";
+  }
+}
+
+/* ================= BOUTONS ================= */
+
+document.getElementById("btnRecenter").onclick=function(){
+  animateCam(0,0,FIT_DIST,0.35,cam.theta);
+};
+document.getElementById("btnFullscreen").onclick=function(){
+  var d=document;
+  var fsEl=d.fullscreenElement||d.webkitFullscreenElement;
+  if(fsEl){
+    if(d.exitFullscreen)d.exitFullscreen();
+    else if(d.webkitExitFullscreen)d.webkitExitFullscreen();
+  }else{
+    var el=d.documentElement;
+    if(el.requestFullscreen)el.requestFullscreen();
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  }
+};
+document.getElementById("btnClear").onclick=function(){
+  assign={};refreshUI();closeSelector();
+};
+
+/* ---- RETOUR : renvoie vers la page de consignes (Curiosity) ---- */
+(function(){
+  var backBtn=document.getElementById("btnBack");
+  if(backBtn){
+    backBtn.onclick=function(){
+      if(window.parent && window.parent!==window){
+        window.parent.postMessage({type:"curiosity-solar-back"},"*");
+      }
+    };
+  }
+})();
+
+var toast=document.getElementById("failToast"),toastTimer=null;
+document.getElementById("btnValidate").onclick=function(){
+  var complete=true, ok=true;
+  for(var i=0;i<ENONCES.length;i++){
+    if(!assign[ENONCES[i].g])complete=false;
+    if(assign[ENONCES[i].g]!==ENONCES[i].answer)ok=false;
+  }
+  if(ok && complete){
+    try{localStorage.setItem("nx_recepteurs_done","1");}catch(err){}
+    /* intégré dans Curiosity : on délègue l'animation de succès au parent
+       (paramètre III activé). En autonome, on montre l'overlay local. */
+    if(window.parent && window.parent!==window){
+      window.parent.postMessage({type:"curiosity-solar-solved"},"*");
+    }else{
+      document.getElementById("success").className="show";
+    }
+  }else{
+    toast.className="show";
+    if(toastTimer)clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){toast.className="";},1000);
+  }
+};
+
+/* ================= BOUCLE ================= */
+
+var t0=Date.now(),lastT=t0;
+function loop(){
+  var nowMs=Date.now();
+  var dt=(nowMs-lastT)/1000;lastT=nowMs;
+  if(dt>0.2)dt=0.2;
+  var tt=(nowMs-t0)/1000;
+  if(camAnim)stepCamAnim();
+  applyCam();
+  /* temps simulé : TIME_MULT fois le temps réel */
+  var simJD=JD0+((nowMs-SIM_T0)/86400000)*TIME_MULT;
+  for(var i=0;i<planetMeshes.length;i++){
+    var pd=planetMeshes[i];
+    /* révolution : position orbitale recalculée à l'instant simulé */
+    pd.group.position.copy(computePlanetPos(pd.idx,simJD));
+    /* rotation propre : vitesse réelle × SPIN_MULT */
+    pd.mesh.rotation.y+=pd.spin*dt;
+    if(pd.clouds)pd.clouds.rotation.y+=pd.spin*dt*1.15;
+  }
+  sunMesh.rotation.y+=0.0006;
+  /* pulsation des filaments de protubérances */
+  for(i=0;i<promGroups.length;i++){
+    var pg=promGroups[i],pu=pg.userData;
+    var base=0.5+0.5*Math.sin(tt*pu.sp+pu.ph);
+    for(var f=0;f<pg.children.length;f++){
+      pg.children[f].material.opacity=0.28+0.32*base
+        +0.08*Math.sin(tt*2.3+f*1.7+pu.ph);
+    }
+    var s=1+0.05*Math.sin(tt*pu.sp*0.8+pu.ph);
+    pg.scale.set(s,s,s);
+  }
+  /* volutes bouillonnantes */
+  for(i=0;i<wisps.length;i++){
+    var w2=wisps[i],wu=w2.userData;
+    var k=0.5+0.5*Math.sin(tt*wu.sp+wu.ph);
+    w2.material.opacity=0.18+0.3*k;
+    var sc=wu.base*(0.85+0.3*k);
+    w2.scale.set(sc,sc,1);
+    w2.material.rotation+=0.0012;
+  }
+  /* couronne discrète en contre-rotation */
+  coronaA.material.rotation+=0.00030;
+  coronaB.material.rotation-=0.00018;
+  updateBadges();
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+
+resize();
+cam.dist=FIT_DIST;
+applyCam();
+loop();
+
+})();
+</script>
+</body>
+</html>
