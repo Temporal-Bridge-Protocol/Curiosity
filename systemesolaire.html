@@ -1900,6 +1900,58 @@ document.getElementById("btnClear").onclick=function(){
 })();
 
 var toast=document.getElementById("failToast"),toastTimer=null;
+/* Animation d'ondes émises par les récepteurs */
+function emitReceiverWaves(){
+  var waveGroup=new THREE.Group();
+  scene.add(waveGroup);
+
+  var waveAnimationDuration=2.2;
+  var startTime=Date.now();
+
+  planetMeshes.forEach(function(pd, idx){
+    var delay=idx*0.15;
+    var waveStartTime=startTime+delay*1000;
+
+    var waveGeom=new THREE.SphereGeometry(pd.r*0.5, 32, 16);
+    var waveWire=new THREE.WireframeGeometry(waveGeom);
+    var waveLine=new THREE.LineSegments(
+      waveWire,
+      new THREE.LineBasicMaterial({
+        color:0x57d3ff,
+        linewidth:1,
+        transparent:true,
+        opacity:0.8
+      })
+    );
+
+    waveLine.position.copy(pd.group.position);
+    waveGroup.add(waveLine);
+
+    var animateWave=function(){
+      var nowMs=Date.now();
+      var elapsed=(nowMs-waveStartTime)/1000;
+
+      if(elapsed<0)return;
+      if(elapsed>1.5){
+        waveGroup.remove(waveLine);
+        return;
+      }
+
+      var progress=Math.min(1, elapsed/1.5);
+      var scale=1+progress*3;
+      waveLine.scale.set(scale, scale, scale);
+      waveLine.material.opacity=0.8*(1-progress);
+
+      requestAnimationFrame(animateWave);
+    };
+    animateWave();
+  });
+
+  setTimeout(function(){
+    scene.remove(waveGroup);
+  }, (waveAnimationDuration+0.5)*1000);
+}
+
 document.getElementById("btnValidate").onclick=function(){
   var complete=true, ok=true;
   for(var i=0;i<ENONCES.length;i++){
@@ -1908,18 +1960,23 @@ document.getElementById("btnValidate").onclick=function(){
   }
   if(ok && complete){
     try{localStorage.setItem("nx_recepteurs_done","1");}catch(err){}
-    /* Animation de succès affichée pendant 4 s, puis retour automatique
-       vers la page principale de Curiosity (fondu géré côté Curiosity). */
-    document.getElementById("success").className="show";
+
+    /* Lancer l'animation d'ondes des récepteurs */
+    emitReceiverWaves();
+
+    /* Animation de succès affichée après les ondes, pendant 4 s */
     setTimeout(function(){
-      if(window.parent && window.parent!==window){
-        /* intégré : le parent valide l'énigme III et revient à l'accueil */
-        window.parent.postMessage({type:"curiosity-solar-solved"},"*");
-      }else{
-        /* autonome : rejoindre la page principale de Curiosity */
-        window.location.href="index.html";
-      }
-    },4000);
+      document.getElementById("success").className="show";
+      setTimeout(function(){
+        if(window.parent && window.parent!==window){
+          /* intégré : le parent valide l'énigme III et revient à l'accueil */
+          window.parent.postMessage({type:"curiosity-solar-solved"},"*");
+        }else{
+          /* autonome : rejoindre la page principale de Curiosity */
+          window.location.href="index.html";
+        }
+      },4000);
+    }, 2200);/* délai d'attente pour que les ondes finissent */
   }else{
     toast.className="show";
     if(toastTimer)clearTimeout(toastTimer);
