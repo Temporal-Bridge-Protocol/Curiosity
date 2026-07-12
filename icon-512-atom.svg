@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- ATOM/NUCLEUS CONCEPT - Transparent background -->
+
+  <!-- Gradients et filtres -->
+  <defs>
+    <!-- Gradient pour le noyau -->
+    <radialGradient id="nucleus-glow-512" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"/>
+      <stop offset="40%" style="stop-color:#b5f0ff;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#7C8CFF;stop-opacity:0"/>
+    </radialGradient>
+
+    <!-- Gradient pour les orbites -->
+    <linearGradient id="orbit-glow-512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C8CFF;stop-opacity:0.6"/>
+      <stop offset="50%" style="stop-color:#4FD8C8;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#7C8CFF;stop-opacity:0.6"/>
+    </linearGradient>
+
+    <!-- Filtre de lueur -->
+    <filter id="glow-nucleus-512">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glow-orbit-512">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Filtre pour les électrons -->
+    <filter id="glow-electron-512">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ORBITES (3 anneaux circulaires) -->
+  <!-- Orbite externe -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#orbit-glow-512)" stroke-width="2.5" opacity="0.7" filter="url(#glow-orbit-512)"/>
+
+  <!-- Orbite moyenne -->
+  <circle cx="256" cy="256" r="120" fill="none" stroke="url(#orbit-glow-512)" stroke-width="2" opacity="0.65" filter="url(#glow-orbit-512)"/>
+
+  <!-- Orbite interne -->
+  <circle cx="256" cy="256" r="60" fill="none" stroke="url(#orbit-glow-512)" stroke-width="1.5" opacity="0.6" filter="url(#glow-orbit-512)"/>
+
+  <!-- ÉLECTRONS SUR ORBITE EXTERNE (8 particules) -->
+  <!-- Position 1 (top) -->
+  <circle cx="256" cy="76" r="5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="256" cy="76" r="2.5" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Position 2 (top-right) -->
+  <circle cx="383" cy="103" r="5" fill="#4FD8C8" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="383" cy="103" r="2.5" fill="#ffffff" opacity="0.65"/>
+
+  <!-- Position 3 (right) -->
+  <circle cx="436" cy="256" r="5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="436" cy="256" r="2.5" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Position 4 (bottom-right) -->
+  <circle cx="383" cy="409" r="5" fill="#4FD8C8" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="383" cy="409" r="2.5" fill="#ffffff" opacity="0.65"/>
+
+  <!-- Position 5 (bottom) -->
+  <circle cx="256" cy="436" r="5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="256" cy="436" r="2.5" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Position 6 (bottom-left) -->
+  <circle cx="129" cy="409" r="5" fill="#4FD8C8" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="129" cy="409" r="2.5" fill="#ffffff" opacity="0.65"/>
+
+  <!-- Position 7 (left) -->
+  <circle cx="76" cy="256" r="5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="76" cy="256" r="2.5" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Position 8 (top-left) -->
+  <circle cx="129" cy="103" r="5" fill="#4FD8C8" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="129" cy="103" r="2.5" fill="#ffffff" opacity="0.65"/>
+
+  <!-- ÉLECTRONS SUR ORBITE MOYENNE (6 particules, décalées) -->
+  <!-- Position 1 (top-right diagonal) -->
+  <circle cx="341" cy="149" r="4" fill="#7C8CFF" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="341" cy="149" r="2" fill="#ffffff" opacity="0.6"/>
+
+  <!-- Position 2 (right-bottom diagonal) -->
+  <circle cx="363" cy="299" r="4" fill="#4FD8C8" opacity="0.8" filter="url(#glow-electron-512)"/>
+  <circle cx="363" cy="299" r="2" fill="#ffffff" opacity="0.55"/>
+
+  <!-- Position 3 (bottom-left diagonal) -->
+  <circle cx="299" cy="363" r="4" fill="#7C8CFF" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="299" cy="363" r="2" fill="#ffffff" opacity="0.6"/>
+
+  <!-- Position 4 (left-bottom diagonal) -->
+  <circle cx="171" cy="363" r="4" fill="#4FD8C8" opacity="0.8" filter="url(#glow-electron-512)"/>
+  <circle cx="171" cy="363" r="2" fill="#ffffff" opacity="0.55"/>
+
+  <!-- Position 5 (left-top diagonal) -->
+  <circle cx="149" cy="213" r="4" fill="#7C8CFF" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="149" cy="213" r="2" fill="#ffffff" opacity="0.6"/>
+
+  <!-- Position 6 (top-left diagonal) -->
+  <circle cx="171" cy="149" r="4" fill="#4FD8C8" opacity="0.8" filter="url(#glow-electron-512)"/>
+  <circle cx="171" cy="149" r="2" fill="#ffffff" opacity="0.55"/>
+
+  <!-- ÉLECTRONS SUR ORBITE INTERNE (3 particules, perpendiculaires) -->
+  <!-- Position 1 (right) -->
+  <circle cx="316" cy="256" r="3.5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="316" cy="256" r="1.75" fill="#ffffff" opacity="0.7"/>
+
+  <!-- Position 2 (bottom-left diagonal) -->
+  <circle cx="228" cy="312" r="3.5" fill="#4FD8C8" opacity="0.85" filter="url(#glow-electron-512)"/>
+  <circle cx="228" cy="312" r="1.75" fill="#ffffff" opacity="0.65"/>
+
+  <!-- Position 3 (top-left diagonal) -->
+  <circle cx="228" cy="200" r="3.5" fill="#7C8CFF" opacity="0.9" filter="url(#glow-electron-512)"/>
+  <circle cx="228" cy="200" r="1.75" fill="#ffffff" opacity="0.7"/>
+
+  <!-- NOYAU CENTRAL (nucleus) - Multi-couches luminescentes -->
+  <!-- Couche externe du noyau -->
+  <circle cx="256" cy="256" r="32" fill="#7C8CFF" opacity="0.4" filter="url(#glow-nucleus-512)"/>
+
+  <!-- Couche moyenne du noyau -->
+  <circle cx="256" cy="256" r="22" fill="#b5f0ff" opacity="0.65" filter="url(#glow-nucleus-512)"/>
+
+  <!-- Couche interne du noyau (centre brillant) -->
+  <circle cx="256" cy="256" r="12" fill="url(#nucleus-glow-512)" opacity="0.9" filter="url(#glow-nucleus-512)"/>
+
+  <!-- Cœur ultra-luminescent -->
+  <circle cx="256" cy="256" r="6" fill="#ffffff" opacity="0.85" filter="url(#glow-nucleus-512)"/>
+
+  <!-- PARTICULES SUPPLÉMENTAIRES pour enrichir (effet de densité électronique) -->
+  <!-- Petites particules volantes autour de l'orbite externe -->
+  <circle cx="310" cy="85" r="2" fill="#7C8CFF" opacity="0.6" filter="url(#glow-electron-512)"/>
+  <circle cx="415" cy="180" r="2" fill="#4FD8C8" opacity="0.55" filter="url(#glow-electron-512)"/>
+  <circle cx="420" cy="320" r="2" fill="#7C8CFF" opacity="0.6" filter="url(#glow-electron-512)"/>
+  <circle cx="310" cy="425" r="2" fill="#4FD8C8" opacity="0.55" filter="url(#glow-electron-512)"/>
+  <circle cx="202" cy="430" r="2" fill="#7C8CFF" opacity="0.6" filter="url(#glow-electron-512)"/>
+  <circle cx="92" cy="330" r="2" fill="#4FD8C8" opacity="0.55" filter="url(#glow-electron-512)"/>
+  <circle cx="97" cy="180" r="2" fill="#7C8CFF" opacity="0.6" filter="url(#glow-electron-512)"/>
+  <circle cx="202" cy="87" r="2" fill="#4FD8C8" opacity="0.55" filter="url(#glow-electron-512)"/>
+</svg>
