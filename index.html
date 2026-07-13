@@ -88,6 +88,43 @@ body {
 .topbar-sub { font-size: 9px; color: #9ab8cc; font-family: 'Space Mono', monospace; margin-top: 2px; letter-spacing: 0.08em; }
 .content { flex: 1; padding: 22px 18px 36px; overflow-y: auto; position: relative; }
 
+/* RÉCOMPENSE — PAGES LETTRES (O / U / C) */
+.letter-reveal-content {
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.letter-reveal-glow {
+  position: absolute; left: 50%; top: 50%;
+  width: 340px; height: 340px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(87,211,255,0.20) 0%, rgba(87,211,255,0.06) 45%, rgba(87,211,255,0) 72%);
+  pointer-events: none;
+  animation: letterGlowPulse 3.2s ease-in-out infinite;
+}
+@keyframes letterGlowPulse {
+  0%, 100% { opacity: 0.65; transform: translate(-50%, -50%) scale(0.96); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.05); }
+}
+.letter-reveal-big {
+  position: relative;
+  font-family: 'Aptos', 'Space Grotesk', sans-serif;
+  font-size: 260px;
+  line-height: 1;
+  font-weight: 700;
+  color: #57d3ff;
+  text-shadow: 0 0 40px rgba(87,211,255,0.55), 0 0 90px rgba(87,211,255,0.28);
+  animation: letterRevealIn 0.7s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes letterRevealIn {
+  0%   { opacity: 0; transform: scale(0.6); filter: blur(6px); }
+  60%  { opacity: 1; transform: scale(1.08); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@media (max-width: 480px) {
+  .letter-reveal-big { font-size: 34vw; }
+  .letter-reveal-glow { width: 70vw; height: 70vw; }
+}
+
 /* HERO */
 .hero {
   text-align: center;
@@ -1855,6 +1892,63 @@ III) Quatre récepteurs spatio-temporels
 </div>
 </div>
 
+<!-- ══ RÉCOMPENSE — LETTRE O (Énigme I) ══ -->
+<div class="page" id="pageLettreO">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()" title="Retour" aria-label="Retour">&#8592;</div>
+    <div>
+      <div class="topbar-title">Paramètre I</div>
+      <div class="topbar-sub">Vecteur d'ancrage · Activé</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="content letter-reveal-content">
+    <div class="letter-reveal-glow"></div>
+    <div class="letter-reveal-big">O</div>
+  </div>
+</div>
+
+<!-- ══ RÉCOMPENSE — LETTRE U (Énigme II) ══ -->
+<div class="page" id="pageLettreU">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()" title="Retour" aria-label="Retour">&#8592;</div>
+    <div>
+      <div class="topbar-title">Paramètre II</div>
+      <div class="topbar-sub">Clé de résonance · Activé</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="content letter-reveal-content">
+    <div class="letter-reveal-glow"></div>
+    <div class="letter-reveal-big">U</div>
+  </div>
+</div>
+
+<!-- ══ RÉCOMPENSE — LETTRE C (Énigme III) ══ -->
+<div class="page" id="pageLettreC">
+  <div class="topbar">
+    <div class="back-btn" onclick="goHome()" title="Retour" aria-label="Retour">&#8592;</div>
+    <div>
+      <div class="topbar-title">Paramètre III</div>
+      <div class="topbar-sub">Signatures récepteurs · Activé</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn" onclick="toggleFullscreen()" title="Plein écran" aria-label="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="topbar-btn" onclick="showPage('pageSettings')" title="Paramètres" aria-label="Paramètres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="content letter-reveal-content">
+    <div class="letter-reveal-glow"></div>
+    <div class="letter-reveal-big">C</div>
+  </div>
+</div>
+
 <!-- ══ SCAN BIO ══ -->
 <div class="page" id="pageBio">
   <div class="topbar">
@@ -2451,6 +2545,14 @@ function lockClear() {
   }
 }
 
+/* ── Pages "lettre" (récompense d'énigme résolue) ── */
+var LETTER_PAGES = ['pageLettreO', 'pageLettreU', 'pageLettreC'];
+function showLetterPage(idx) {
+  var id = LETTER_PAGES[idx];
+  if (!id) { goHome(); return; }
+  showPage(id);
+}
+
 function goHome() {
   // Sécurité : si l'animation du transfert temporel est en cours, on l'annule proprement
   var cryptexOverlay = document.getElementById('cryptexOverlay');
@@ -2475,7 +2577,7 @@ function refreshHome() {
     var arr  = document.getElementById('arr' + n);
     if (solved) {
       card.classList.add('solved');
-      (function(idx){ card.onclick = function(){ openEnigma(idx); }; })(n);
+      (function(idx){ card.onclick = function(){ showLetterPage(idx - 1); }; })(n);
       st.textContent = 'ACTIVÉ'; arr.style.display = 'none';
     } else {
       card.classList.remove('solved');
@@ -2700,7 +2802,7 @@ window.addEventListener('message', function(ev) {
     saveState();
     refreshHome();
     launchSuccessAnim(0, function() {
-      goHome();
+      showLetterPage(0);
     });
   }
 });
@@ -2771,7 +2873,7 @@ function markEnigma3Solved() {
   var btn3 = document.getElementById('openStarNavBtn');
   if (btn3) { btn3.style.opacity = '1'; btn3.style.pointerEvents = 'auto'; }
   closeSolarSystem();
-  goHome();
+  showLetterPage(2);
 }
 
 // Pont de communication avec le jeu du système solaire (iframe)
@@ -2802,7 +2904,9 @@ window.CuriosityBridge = {
     closeStarNav();
     setTimeout(function(){
       showPage('pageEnigma3');
-      launchSuccessAnim(2, function() {});
+      launchSuccessAnim(2, function() {
+        showLetterPage(2);
+      });
     }, 600);
   }
 };
@@ -2905,7 +3009,7 @@ function checkAnswer() {
     saveState();
     // Lance l'animation de succès immédiatement
     launchSuccessAnim(curIdx, function() {
-      goHome();
+      showLetterPage(curIdx);
     });
   } else {
     inp.classList.add('err');
