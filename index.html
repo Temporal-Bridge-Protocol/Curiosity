@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+<html>
+<head>
 <script src="curiosity-logo.js"></script>
-</head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
@@ -1388,6 +1389,7 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
 
 </style>
 <script src="curiosity-logo.js"></script>
+</head>
 </head>
 <body>
 
@@ -3971,7 +3973,12 @@ function updateGlowOverlay(active){
 //  BOUTON RETOUR
 // ═══════════════════════════════════════════════════════════════════
 document.getElementById('sn-back-btn').addEventListener('click',()=>{
-  if(isFullscreen()) exitFullscreen();
+  var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+  if(isFs) {
+    if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+  }
   if(window.CuriosityBridge) window.CuriosityBridge.closeStarNav();
   else showQuitScreen();
 });
