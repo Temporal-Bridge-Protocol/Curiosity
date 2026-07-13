@@ -1325,10 +1325,12 @@ body:has(#snOverlay.open)::-webkit-scrollbar { display: none; }
 
 /* Letter Pages Styling */
 .page-letter {
-  display: flex;
   flex-direction: column;
   background: #07090f;
   overflow: hidden;
+}
+.page-letter.active {
+  display: flex;
 }
 
 .page-letter-content {
