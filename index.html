@@ -2416,11 +2416,11 @@ function toggleFullscreen() {
   var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
   if (isFs) {
     if (window.curiosityMarkVoluntaryFullscreenExit) window.curiosityMarkVoluntaryFullscreenExit();
-    if (document.exitFullscreen) document.exitFullscreen();
+    if (document.exitFullscreen) document.exitFullscreen().catch(function(){});
     else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
     else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
   } else {
-    if (el.requestFullscreen) el.requestFullscreen();
+    if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
     else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
     else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
     // Chrome Android n'a pas de vraie barre d'URL en plein écran, mais la
@@ -3966,25 +3966,6 @@ function updateGlowOverlay(active){
 // ═══════════════════════════════════════════════════════════════════
 //  PLEIN ÉCRAN
 // ═══════════════════════════════════════════════════════════════════
-function enterFullscreen(){
-  const el=document.documentElement;
-  if(el.requestFullscreen) el.requestFullscreen();
-  else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  else if(el.mozRequestFullScreen) el.mozRequestFullScreen();
-}
-function exitFullscreen(){
-  if(document.exitFullscreen) document.exitFullscreen();
-  else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
-  else if(document.mozCancelFullScreen) document.mozCancelFullScreen();
-}
-function isFullscreen(){ return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement); }
-
-document.getElementById('btn-fs').addEventListener('click',()=>{
-  if(isFullscreen()) exitFullscreen(); else enterFullscreen();
-});
-document.addEventListener('fullscreenchange',()=>{
-  document.getElementById('btn-fs').textContent=isFullscreen()?'⛶ QUITTER PLEIN ÉCRAN':'⛶ PLEIN ÉCRAN';
-});
 
 // ═══════════════════════════════════════════════════════════════════
 //  BOUTON RETOUR
